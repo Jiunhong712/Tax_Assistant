@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/mock_data.dart'; // mockIncome will be moved here
@@ -15,6 +16,7 @@ class HistoryPage extends StatefulWidget {
 }
 
 class _HistoryPageState extends State<HistoryPage> {
+  final historyController = Get.find<HistoryController>();
   List<Expense> _allHistory = [];
   List<Expense> _incomeHistory = [];
   List<Expense> _expenseHistory = [];
@@ -55,9 +57,12 @@ class _HistoryPageState extends State<HistoryPage> {
     await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
 
     // Access mockIncome and mockExpenses from mock_data.dart
-    _allHistory = [...mockExpenses, ...mockIncome]; // Combine for all history
-    _incomeHistory = mockIncome;
-    _expenseHistory = mockExpenses;
+    _allHistory = [
+      ...historyController.mockExpenses,
+      ...historyController.mockIncome,
+    ]; // Combine for all history
+    _incomeHistory = historyController.mockIncome;
+    _expenseHistory = historyController.mockExpenses;
 
     _populateAvailableFilters();
 

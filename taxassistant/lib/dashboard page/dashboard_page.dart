@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart'; // Import GetX
 import '../models/mock_data.dart';
-import '../controllers/expense_controller.dart'; // Import ExpenseController
+import '../history page/history_controller.dart'; // Import history_controller.dart
+import 'package:fl_chart/fl_chart.dart'; // Import fl_chart
 
 enum DashboardView { Income, Expenses } // Define enum for dashboard views
 
@@ -19,8 +20,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    final expenseController =
-        Get.find<ExpenseController>(); // Get instance of ExpenseController
+    final historyController =
+        Get.find<HistoryController>(); // Get instance of ExpenseController
 
     return Scaffold(
       appBar: AppBar(title: const Text('Dashboard')),
@@ -50,66 +51,156 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             const SizedBox(height: 20),
             // Conditionally display content based on selected view
-            // Removed Income view as mockIncome was removed
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Expense Summary by Category:',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 10),
-                  Expanded(
-                    child: Obx(() {
-                      // Use Obx for reactivity
-                      final categoryTotals = _calculateCategoryTotals(
-                        expenseController.expenses, // Use expenseController
-                      );
-
-                      if (categoryTotals.isEmpty) {
-                        return const Center(
-                          child: Text('No expenses recorded yet.'),
-                        );
-                      }
-                      return ListView.builder(
-                        itemCount: categoryTotals.length,
-                        itemBuilder: (context, index) {
-                          final category = categoryTotals.keys.elementAt(index);
-                          final total = categoryTotals.values.elementAt(index);
-                          return Card(
-                            margin: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    category,
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                  Text(
-                                    'RM ${total.toStringAsFixed(2)}',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    }),
-                  ),
-                ],
-              ),
+              child:
+                  _selectedView == DashboardView.Income
+                      ? _buildIncomeView() // Build Income view
+                      : _buildExpenseView(
+                        historyController,
+                      ), // Build Expense view
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildIncomeView() {
+    final monthlyIncome = _calculateMonthlyIncome(
+      HistoryController().mockIncome,
+    );
+
+    if (monthlyIncome.isEmpty) {
+      return const Center(child: Text('No income data available.'));
+    }
+
+    // Prepare data for the chart
+    final List<BarChartGroupData> barGroups =
+        monthlyIncome.entries.map((entry) {
+          // Assuming entry.key is a month index (0 for Jan, 1 for Feb, etc.)
+          return BarChartGroupData(
+            x: entry.key,
+            barRods: [
+              BarChartRodData(toY: entry.value, color: Colors.blue, width: 16),
+            ],
+            showingTooltipIndicators: [0],
+          );
+        }).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Monthly Income:',
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        const SizedBox(height: 50),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: BarChart(
+              BarChartData(
+                gridData: const FlGridData(show: false),
+                titlesData: FlTitlesData(
+                  leftTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      getTitlesWidget: (value, meta) {
+                        const months = [
+                          'Jan',
+                          'Feb',
+                          'Mar',
+                          'Apr',
+                          'May',
+                          'Jun',
+                          'Jul',
+                          'Aug',
+                          'Sep',
+                          'Oct',
+                          'Nov',
+                          'Dec',
+                        ];
+                        return SideTitleWidget(
+                          axisSide: meta.axisSide,
+                          space: 8.0,
+                          child: Text(months[value.toInt() % 12]),
+                        );
+                      },
+                    ),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                ),
+                borderData: FlBorderData(
+                  show: true,
+                  border: Border.all(color: const Color(0xff37434d), width: 1),
+                ),
+                barGroups: barGroups,
+                alignment: BarChartAlignment.spaceAround,
+                maxY:
+                    monthlyIncome.values.reduce((a, b) => a > b ? a : b) *
+                    1.1, // Add some padding to the top
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExpenseView(HistoryController historyController) {
+    final categoryTotals = _calculateCategoryTotals(
+      historyController.mockExpenses,
+    );
+
+    if (categoryTotals.isEmpty) {
+      return const Center(child: Text('No expenses recorded yet.'));
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Expense Summary by Category:',
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        const SizedBox(height: 10),
+        Expanded(
+          child: ListView.builder(
+            itemCount: categoryTotals.length,
+            itemBuilder: (context, index) {
+              final category = categoryTotals.keys.elementAt(index);
+              final total = categoryTotals.values.elementAt(index);
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(category, style: const TextStyle(fontSize: 16)),
+                      Text(
+                        'RM ${total.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -123,5 +214,24 @@ class _DashboardPageState extends State<DashboardPage> {
       );
     }
     return categoryTotals;
+  }
+
+  Map<int, double> _calculateMonthlyIncome(List<Expense> income) {
+    final Map<int, double> monthlyTotals = {};
+    for (var entry in income) {
+      try {
+        final date = DateTime.parse(entry.date);
+        final month = date.month - 1; // 0 for January, 11 for December
+        monthlyTotals.update(
+          month,
+          (value) => value + entry.total,
+          ifAbsent: () => entry.total,
+        );
+      } catch (e) {
+        // Handle potential date parsing errors
+        print('Error parsing date: ${entry.date}');
+      }
+    }
+    return monthlyTotals;
   }
 }

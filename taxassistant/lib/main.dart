@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart'; // Import GetX
+import 'package:get/get.dart';
 import 'package:taxassistant/upload%20page/upload_page.dart';
 import 'package:taxassistant/history%20page/history_page.dart';
 import 'package:taxassistant/dashboard%20page/dashboard_page.dart';
 import 'package:taxassistant/components/chatbot_button.dart';
-import 'controllers/expense_controller.dart'; // Import ExpenseController
+import 'package:taxassistant/history%20page/history_controller.dart';
 
 void main() {
-  Get.put(ExpenseController()); // Register ExpenseController
+  Get.put(HistoryController());
   runApp(const MyApp());
 }
 

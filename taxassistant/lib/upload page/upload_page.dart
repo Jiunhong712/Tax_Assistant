@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:typed_data'; // Required for Uint8List
 import 'package:get/get.dart'; // Import GetX
 import 'upload_controller.dart'; // Import the controller
-import '../controllers/expense_controller.dart'; // Import ExpenseController
+import 'package:taxassistant/history%20page/history_controller.dart';
 
 class UploadPage extends StatefulWidget {
   const UploadPage({Key? key}) : super(key: key);
@@ -16,8 +16,7 @@ class _UploadPageState extends State<UploadPage> {
   @override
   Widget build(BuildContext context) {
     final uploadController = Get.put(UploadController());
-    final expenseController =
-        Get.find<ExpenseController>(); // Get instance of ExpenseController
+    final historyController = Get.put(HistoryController());
 
     return Scaffold(
       appBar: AppBar(title: const Text('Upload Document')),
@@ -146,7 +145,7 @@ class _UploadPageState extends State<UploadPage> {
                                     uploadController.processedExpense != null
                                         ? () {
                                           uploadController.generateReport(
-                                            expenseController.expenses,
+                                            historyController.mockExpenses,
                                           );
                                         }
                                         : null,

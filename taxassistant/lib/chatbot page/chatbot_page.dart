@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart'; // Import GetX
+import 'package:taxassistant/history%20page/history_controller.dart';
 import 'dart:convert'; // For JSON encoding
 import '../models/mock_data.dart'; // Import mock data
-import '../controllers/expense_controller.dart'; // Import ExpenseController
 
 class ChatbotPage extends StatefulWidget {
   const ChatbotPage({Key? key}) : super(key: key);
@@ -142,9 +142,9 @@ Use this data to calculate taxes, suggest deductions, or categorize expenses for
     });
 
     // Get expense data from controller
-    final expenseController =
-        Get.find<ExpenseController>(); // Get instance of ExpenseController
-    final List<Expense> expenses = expenseController.expenses;
+    final historyController =
+        Get.find<HistoryController>(); // Get instance of ExpenseController
+    final List<Expense> expenses = historyController.mockExpenses;
 
     // Prepare data for API call
     final List<Map<String, dynamic>> expensesData =
