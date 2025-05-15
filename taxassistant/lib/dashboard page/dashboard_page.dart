@@ -1,8 +1,12 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'dart:typed_data'; // Required for Uint8List
 import 'package:get/get.dart'; // Import GetX
 import '../models/mock_data.dart';
 import '../history page/history_controller.dart'; // Import history_controller.dart
 import 'package:fl_chart/fl_chart.dart'; // Import fl_chart
+import 'package:pdf/widgets.dart' as pw;
+import 'package:universal_html/html.dart' as html; // For web download
 
 enum DashboardView { Income, Expenses } // Define enum for dashboard views
 
@@ -30,6 +34,21 @@ class _DashboardPageState extends State<DashboardPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            ElevatedButton(
+              onPressed: () {
+                if (_selectedView == DashboardView.Income) {
+                  generateReport(HistoryController().mockIncome);
+                } else {
+                  generateReport(historyController.mockExpenses);
+                }
+              },
+              child: Text(
+                _selectedView == DashboardView.Income
+                    ? 'Export Income Report'
+                    : 'Export Expense Report',
+              ),
+            ),
+            const SizedBox(height: 20),
             // Segmented Button
             SegmentedButton<DashboardView>(
               segments: const <ButtonSegment<DashboardView>>[
@@ -233,5 +252,55 @@ class _DashboardPageState extends State<DashboardPage> {
       }
     }
     return monthlyTotals;
+  }
+
+  Future<void> generateReport(List<Expense> expenses) async {
+    if (expenses.isEmpty) {
+      // This part needs context from the UI to show a SnackBar
+      // For now, I'll just print a message.
+      print('No expenses to generate a report.');
+      return;
+    }
+
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(
+                'Expense Report',
+                style: pw.TextStyle(
+                  fontSize: 24,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.SizedBox(height: 20),
+              pw.Text('Processed Expenses:'),
+              pw.SizedBox(height: 10),
+              for (var expense in expenses)
+                pw.Text(
+                  '- ${expense.date}: ${expense.vendor} - ${expense.total.toStringAsFixed(2)} (${expense.category})',
+                ),
+              // Add more details like summaries and deductions here
+            ],
+          );
+        },
+      ),
+    );
+
+    // Save the PDF
+    final bytes = await pdf.save();
+
+    // For web, trigger download
+    final blob = html.Blob([bytes], 'application/pdf');
+    final url = html.Url.createObjectUrlFromBlob(blob);
+    final anchor =
+        html.AnchorElement(href: url)
+          ..setAttribute('download', 'expense_report.pdf')
+          ..click();
+    html.Url.revokeObjectUrl(url);
   }
 }

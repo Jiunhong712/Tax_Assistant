@@ -139,18 +139,6 @@ class _UploadPageState extends State<UploadPage> {
                                     ),
                                   ),
                                 ),
-                              const SizedBox(height: 20),
-                              ElevatedButton(
-                                onPressed:
-                                    uploadController.processedExpense != null
-                                        ? () {
-                                          uploadController.generateReport(
-                                            historyController.mockExpenses,
-                                          );
-                                        }
-                                        : null,
-                                child: const Text('Export Report'),
-                              ),
                             ],
                           )
                         else
