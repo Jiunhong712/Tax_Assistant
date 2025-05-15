@@ -1,16 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:http/http.dart' as http;
 import 'dart:typed_data'; // Required for Uint8List
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:provider/provider.dart'; // Import Provider
-import 'package:universal_html/html.dart' as html; // For web download
 import 'package:get/get.dart'; // Import GetX
 import '../models/expense_provider.dart';
-import '../models/mock_data.dart';
-import '../controllers/upload_controller.dart'; // Import the controller
+import 'upload_controller.dart'; // Import the controller
 
 class UploadPage extends StatefulWidget {
   const UploadPage({Key? key}) : super(key: key);
@@ -46,13 +40,13 @@ class _UploadPageState extends State<UploadPage> {
                             padding: const EdgeInsets.all(16.0),
                             child: Text(
                               'Tax Filing Reminder: ${uploadController.reminderMessage}',
-                              textAlign: TextAlign.center,
+                              textAlign: TextAlign.justify,
                               style: const TextStyle(fontSize: 16),
                             ),
                           ),
                         ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 100),
               Obx(
                 () => ElevatedButton(
                   onPressed:

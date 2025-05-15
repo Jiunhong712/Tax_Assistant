@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:taxassistant/pages/upload_page.dart';
-import 'package:taxassistant/pages/history_page.dart';
-import 'package:taxassistant/pages/dashboard_page.dart';
+import 'package:taxassistant/upload%20page/upload_page.dart';
+import 'package:taxassistant/history%20page/history_page.dart';
+import 'package:taxassistant/dashboard%20page/dashboard_page.dart';
 import 'package:taxassistant/components/chatbot_button.dart';
 import 'package:taxassistant/models/expense_provider.dart';
 

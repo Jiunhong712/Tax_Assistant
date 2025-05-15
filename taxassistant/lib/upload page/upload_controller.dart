@@ -27,23 +27,49 @@ class UploadController extends GetxController {
 
   void _calculateReminder() {
     final now = DateTime.now();
-    final filingStartDate = DateTime(2026, 3, 1);
-    final filingEndDate = DateTime(2026, 4, 30);
+    final filingStartDate = DateTime(2025, 3, 1);
+    final filingEndDate = DateTime(2025, 12, 31);
+    final currentMonth = now.month;
+
+    String message = '';
 
     if (now.isBefore(filingStartDate)) {
       final difference = filingStartDate.difference(now);
       final days = difference.inDays;
       final months = (days / 30).floor();
       final remainingDays = days % 30;
-      _reminderMessage.value =
-          '$months months and $remainingDays days until filing opens.';
+      message =
+          '$months months and $remainingDays days until filing opens. Start tracking your deductible expenses like broadband, books, and insurance.';
     } else if (now.isAfter(filingEndDate)) {
-      _reminderMessage.value = 'The 2026 tax filing period has ended.';
+      message =
+          'The 2026 tax filing period has ended. Remember to store all receipts for next year’s claim.';
     } else {
-      final difference = filingEndDate.difference(now);
-      final days = difference.inDays;
-      _reminderMessage.value = '$days days remaining to file your 2026 taxes.';
+      final daysLeft = filingEndDate.difference(now).inDays;
+      message = '$daysLeft days remaining to file your 2025 taxes.';
+
+      // Add time-sensitive reminders
+      if (now.day == 1) {
+        message +=
+            '\n🔁 Reminder: Upload your monthly receipts (e.g. internet, gym, books).';
+      }
+
+      if (currentMonth >= 10 && currentMonth <= 12) {
+        message +=
+            '\n🕒 Year-end tip: Contribute to PRS or SSPN now to maximize RM8,000 relief.';
+      }
+
+      if (currentMonth == 5) {
+        message +=
+            '\n💡 Mid-year check: Are you claiming your lifestyle, insurance, or medical tax reliefs?';
+      }
+
+      if (currentMonth == 12) {
+        message +=
+            '\n🚨 Final month to submit claims and maximize tax relief. Don’t miss EV charger, insurance, or SSPN deductions!';
+      }
     }
+
+    _reminderMessage.value = message;
   }
 
   Future<void> pickFile() async {
