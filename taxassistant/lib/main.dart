@@ -1,20 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:get/get.dart'; // Import GetX
 import 'package:taxassistant/upload%20page/upload_page.dart';
 import 'package:taxassistant/history%20page/history_page.dart';
 import 'package:taxassistant/dashboard%20page/dashboard_page.dart';
 import 'package:taxassistant/components/chatbot_button.dart';
-import 'package:taxassistant/models/expense_provider.dart';
+import 'controllers/expense_controller.dart'; // Import ExpenseController
 
 void main() {
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => ExpenseProvider()),
-      ],
-      child: const MyApp(),
-    ),
-  );
+  Get.put(ExpenseController()); // Register ExpenseController
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -22,7 +16,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
+      // Use GetMaterialApp
       title: 'Tax Assistant',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),

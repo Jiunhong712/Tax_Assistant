@@ -1,79 +1,5 @@
 import '../models/mock_data.dart';
 
-// Mock Income Data
-final List<Expense> mockIncome = [
-  Expense(
-    vendor: 'Freelance Project 1',
-    date: '2025-01-10',
-    total: 1500.00,
-    fullText: 'Payment for January project',
-    category: 'Freelance',
-  ),
-  Expense(
-    vendor: 'Salary - January',
-    date: '2025-01-25',
-    total: 3000.00,
-    fullText: 'Monthly salary',
-    category: 'Salary',
-  ),
-  Expense(
-    vendor: 'Freelance Project 2',
-    date: '2025-02-15',
-    total: 2000.00,
-    fullText: 'Payment for February project',
-    category: 'Freelance',
-  ),
-  Expense(
-    vendor: 'Salary - February',
-    date: '2025-02-25',
-    total: 3000.00,
-    fullText: 'Monthly salary',
-    category: 'Salary',
-  ),
-  Expense(
-    vendor: 'Freelance Project 3',
-    date: '2025-03-10',
-    total: 1800.00,
-    fullText: 'Payment for March project',
-    category: 'Freelance',
-  ),
-  Expense(
-    vendor: 'Salary - March',
-    date: '2025-03-25',
-    total: 3000.00,
-    fullText: 'Monthly salary',
-    category: 'Salary',
-  ),
-  Expense(
-    vendor: 'Freelance Project 4',
-    date: '2025-04-12',
-    total: 2500.00,
-    fullText: 'Payment for April project',
-    category: 'Freelance',
-  ),
-  Expense(
-    vendor: 'Salary - April',
-    date: '2025-04-25',
-    total: 3000.00,
-    fullText: 'Monthly salary',
-    category: 'Salary',
-  ),
-  Expense(
-    vendor: 'Freelance Project 5',
-    date: '2025-05-18',
-    total: 2200.00,
-    fullText: 'Payment for May project',
-    category: 'Freelance',
-  ),
-  Expense(
-    vendor: 'Salary - May',
-    date: '2025-05-25',
-    total: 3000.00,
-    fullText: 'Monthly salary',
-    category: 'Salary',
-  ),
-];
-
 // Mock Expense Data
 final List<Expense> mockExpenses = [
   Expense(
@@ -145,5 +71,108 @@ final List<Expense> mockExpenses = [
     total: 150.00,
     fullText: 'Monthly gym subscription',
     category: 'Lifestyle & Daily Living',
+  ),
+];
+
+final List<Expense> mockIncome = [
+  // January 2025
+  Expense(
+    vendor: 'Employer',
+    date: '2025-01-31',
+    total: 5000.00,
+    fullText: 'Monthly Salary',
+    category: 'Salary',
+  ),
+  Expense(
+    vendor: 'Freelance Client A',
+    date: '2025-01-15',
+    total: 1200.00,
+    fullText: 'Mobile app development',
+    category: 'Freelance',
+  ),
+  Expense(
+    vendor: 'Dividend',
+    date: '2025-01-05',
+    total: 180.00,
+    fullText: 'Stock dividend payout',
+    category: 'Investment',
+  ),
+
+  // February 2025
+  Expense(
+    vendor: 'Employer',
+    date: '2025-02-28',
+    total: 5000.00,
+    fullText: 'Monthly Salary',
+    category: 'Salary',
+  ),
+  Expense(
+    vendor: 'Freelance Client B',
+    date: '2025-02-20',
+    total: 1000.00,
+    fullText: 'Website redesign project',
+    category: 'Freelance',
+  ),
+
+  // March 2025
+  Expense(
+    vendor: 'Employer',
+    date: '2025-03-31',
+    total: 5000.00,
+    fullText: 'Monthly Salary',
+    category: 'Salary',
+  ),
+  Expense(
+    vendor: 'Freelance Client A',
+    date: '2025-03-18',
+    total: 1600.00,
+    fullText: 'Backend integration task',
+    category: 'Freelance',
+  ),
+  Expense(
+    vendor: 'Dividend',
+    date: '2025-03-10',
+    total: 220.00,
+    fullText: 'Stock dividend payout',
+    category: 'Investment',
+  ),
+
+  // April 2025
+  Expense(
+    vendor: 'Employer',
+    date: '2025-04-30',
+    total: 5000.00,
+    fullText: 'Monthly Salary',
+    category: 'Salary',
+  ),
+  Expense(
+    vendor: 'Freelance Client C',
+    date: '2025-04-12',
+    total: 900.00,
+    fullText: 'Graphic design work',
+    category: 'Freelance',
+  ),
+
+  // May 2025
+  Expense(
+    vendor: 'Employer',
+    date: '2025-05-15',
+    total: 5000.00,
+    fullText: 'Monthly Salary',
+    category: 'Salary',
+  ),
+  Expense(
+    vendor: 'Freelance Client D',
+    date: '2025-05-10',
+    total: 1500.00,
+    fullText: 'Freelance project payment',
+    category: 'Freelance',
+  ),
+  Expense(
+    vendor: 'Dividend',
+    date: '2025-05-05',
+    total: 200.00,
+    fullText: 'Stock dividend payout',
+    category: 'Investment',
   ),
 ];

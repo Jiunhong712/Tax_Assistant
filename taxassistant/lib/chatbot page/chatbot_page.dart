@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../models/expense_provider.dart';
+import 'package:get/get.dart'; // Import GetX
 import 'dart:convert'; // For JSON encoding
 import '../models/mock_data.dart'; // Import mock data
+import '../controllers/expense_controller.dart'; // Import ExpenseController
 
 class ChatbotPage extends StatefulWidget {
   const ChatbotPage({Key? key}) : super(key: key);
@@ -141,12 +141,10 @@ Use this data to calculate taxes, suggest deductions, or categorize expenses for
       _textController.clear(); // Clear the input field
     });
 
-    // Get expense data from provider
-    final expenseProvider = Provider.of<ExpenseProvider>(
-      context,
-      listen: false,
-    );
-    final List<Expense> expenses = expenseProvider.expenses;
+    // Get expense data from controller
+    final expenseController =
+        Get.find<ExpenseController>(); // Get instance of ExpenseController
+    final List<Expense> expenses = expenseController.expenses;
 
     // Prepare data for API call
     final List<Map<String, dynamic>> expensesData =

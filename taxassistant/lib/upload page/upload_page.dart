@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'dart:typed_data'; // Required for Uint8List
-import 'package:provider/provider.dart'; // Import Provider
 import 'package:get/get.dart'; // Import GetX
-import '../models/expense_provider.dart';
 import 'upload_controller.dart'; // Import the controller
+import '../controllers/expense_controller.dart'; // Import ExpenseController
 
 class UploadPage extends StatefulWidget {
   const UploadPage({Key? key}) : super(key: key);
@@ -16,11 +15,9 @@ class UploadPage extends StatefulWidget {
 class _UploadPageState extends State<UploadPage> {
   @override
   Widget build(BuildContext context) {
-    final expenseProvider = Provider.of<ExpenseProvider>(
-      context,
-      listen: false,
-    );
     final uploadController = Get.put(UploadController());
+    final expenseController =
+        Get.find<ExpenseController>(); // Get instance of ExpenseController
 
     return Scaffold(
       appBar: AppBar(title: const Text('Upload Document')),
@@ -149,7 +146,7 @@ class _UploadPageState extends State<UploadPage> {
                                     uploadController.processedExpense != null
                                         ? () {
                                           uploadController.generateReport(
-                                            expenseProvider.expenses,
+                                            expenseController.expenses,
                                           );
                                         }
                                         : null,
