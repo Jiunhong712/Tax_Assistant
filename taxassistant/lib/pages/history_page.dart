@@ -13,13 +13,15 @@ class HistoryPage extends StatefulWidget {
 class _HistoryPageState extends State<HistoryPage> {
   List<Expense> _historyExpenses = [];
   bool _isLoading = false;
-  String _selectedFilter = 'All'; // Default filter
+  String _defaultFilter = 'All';
   List<String> _availableFilters = [
     'All',
-    'Food',
-    'Travel',
-    'Computers',
-  ]; // Mock filters
+    'Lifestyle & Daily Living',
+    'Childcare & Parenting',
+    'Medical & Health',
+    'Retirement & Investment',
+    'Housing',
+  ];
 
   @override
   void initState() {
@@ -46,11 +48,11 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   List<Expense> _getFilteredExpenses() {
-    if (_selectedFilter == 'All') {
+    if (_defaultFilter == 'All') {
       return _historyExpenses;
     } else {
       return _historyExpenses
-          .where((expense) => expense.category == _selectedFilter)
+          .where((expense) => expense.category == _defaultFilter)
           .toList();
     }
   }
@@ -64,10 +66,10 @@ class _HistoryPageState extends State<HistoryPage> {
         child: Column(
           children: [
             DropdownButton<String>(
-              value: _selectedFilter,
+              value: _defaultFilter,
               onChanged: (String? newValue) {
                 setState(() {
-                  _selectedFilter = newValue!;
+                  _defaultFilter = newValue!;
                 });
               },
               items:
