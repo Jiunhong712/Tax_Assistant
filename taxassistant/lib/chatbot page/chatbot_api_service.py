@@ -106,11 +106,13 @@ dashscope.api_key = 'sk-94f31c983f6c40e088d947ac7e0e3879'
 @app.route('/chatbot', methods=['POST'])
 def chatbot():
     user_message = request.json.get('message')
+    dashboard_data = request.json.get('dashboardData')
     if not user_message:
         return jsonify({'error': 'No message provided'}), 400
 
     # Combine the fixed prompt with the user's message
-    full_prompt = f"{_fixedPrompt}\n\nUser: {user_message}"
+    full_prompt = f"{_fixedPrompt}\n\nUser: {user_message}\n\nData below is user's financial data: {dashboard_data}"
+    print(full_prompt)
 
     try:
         response = Generation.call(

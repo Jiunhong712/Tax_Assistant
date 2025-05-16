@@ -247,4 +247,54 @@ class HistoryController extends GetxController {
       category: 'Freelance',
     ),
   ];
+
+  String getCombinedDashboardData() {
+    final currentYear = DateTime.now().year;
+
+    final incomeThisYear = mockIncome
+        .where((income) {
+          final incomeDate = DateTime.parse(income.date);
+          return incomeDate.year == currentYear;
+        })
+        .fold(0.0, (sum, income) => sum + income.total);
+
+    final expensesThisYear = mockExpenses
+        .where((expense) {
+          final expenseDate = DateTime.parse(expense.date);
+          return expenseDate.year == currentYear;
+        })
+        .fold(0.0, (sum, expense) => sum + expense.total);
+
+    final totalIncomeByYear =
+        'Total Income in $currentYear: RM ${incomeThisYear.toStringAsFixed(2)}';
+    final totalExpensesByYear =
+        'Total Expenses in $currentYear: RM ${expensesThisYear.toStringAsFixed(2)}';
+
+    final expensesByCategoryThisYear = mockExpenses
+        .where((expense) {
+          final expenseDate = DateTime.parse(expense.date);
+          return expenseDate.year == currentYear;
+        })
+        .fold<Map<String, double>>({}, (map, expense) {
+          map[expense.category] =
+              (map[expense.category] ?? 0.0) + expense.total;
+          return map;
+        });
+
+    String totalExpensesByCategoryByYear =
+        'Expenses by Category in $currentYear: ';
+    expensesByCategoryThisYear.forEach((category, total) {
+      totalExpensesByCategoryByYear +=
+          '$category: RM ${total.toStringAsFixed(2)}, ';
+    });
+    // Remove the trailing comma and space
+    if (totalExpensesByCategoryByYear.endsWith(', ')) {
+      totalExpensesByCategoryByYear = totalExpensesByCategoryByYear.substring(
+        0,
+        totalExpensesByCategoryByYear.length - 2,
+      );
+    }
+
+    return "$totalIncomeByYear\n$totalExpensesByYear\n$totalExpensesByCategoryByYear";
+  }
 }

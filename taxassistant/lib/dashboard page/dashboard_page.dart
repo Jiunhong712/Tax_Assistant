@@ -6,6 +6,8 @@ import '../upload page/upload_page.dart'; // Import UploadPage
 import '../profile_page.dart'; // Import ProfilePage
 import '../constants.dart'; // Import constants
 import 'package:intl/intl.dart'; // Import for date formatting
+import 'dart:convert'; // For JSON encoding
+import 'package:http/http.dart' as http; // Import http package
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -31,6 +33,11 @@ class _DashboardPageState extends State<DashboardPage> {
     'Retirement & Investment',
     'Housing',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

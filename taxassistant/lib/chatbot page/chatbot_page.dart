@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart'; // Import GetX
-import 'package:taxassistant/history%20page/history_controller.dart';
+import 'package:taxassistant/history%20page/history_controller.dart'; // Import HistoryController
 import 'dart:convert'; // For JSON encoding
 import 'package:http/http.dart' as http; // Import http package
-import '../models/mock_data.dart'; // Import mock data
 import '../constants.dart'; // Import constants
 
 class ChatbotPage extends StatefulWidget {
@@ -17,10 +16,13 @@ class _ChatbotPageState extends State<ChatbotPage> {
   final TextEditingController _textController = TextEditingController();
   bool _isLoading = false;
   List<ChatMessage> _messages = [];
+  final HistoryController historyController = Get.find<HistoryController>();
+  late String dashboardData;
 
   @override
   void initState() {
     super.initState();
+    dashboardData = historyController.getCombinedDashboardData();
     _messages.add(
       ChatMessage(text: 'Welcome! How can I help you today?', isUser: false),
     );
@@ -58,7 +60,8 @@ class _ChatbotPageState extends State<ChatbotPage> {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'message': _messages.last.text,
-        }), // Send the user's message
+          'dashboardData': dashboardData, // Include dashboard data
+        }), // Send the user's message and dashboard data
       );
 
       if (response.statusCode == 200) {
