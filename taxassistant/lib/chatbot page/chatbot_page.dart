@@ -211,7 +211,7 @@ Use this data to calculate taxes, suggest deductions, or categorize expenses for
                   child: TextField(
                     controller: _textController,
                     decoration: const InputDecoration(
-                      hintText: 'Enter your tax query...',
+                      hintText: 'Enter your message here..',
                       border: OutlineInputBorder(),
                     ),
                   ),
