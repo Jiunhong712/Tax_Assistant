@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taxassistant/chatbot%20page/chatbot_page.dart'; // Import ChatbotPage
+import 'package:taxassistant/constants.dart'; // Import constants.dart
 
 class ChatbotButton extends StatelessWidget {
   const ChatbotButton({Key? key}) : super(key: key);
@@ -16,7 +17,11 @@ class ChatbotButton extends StatelessWidget {
     return FloatingActionButton(
       onPressed: () => _openChatbot(context),
       tooltip: 'Open Chatbot',
-      child: const Icon(Icons.chat),
+      backgroundColor: kColorAccent, // Set background color from constants
+      child: const Icon(
+        Icons.smart_toy, // Changed icon to smart_toy
+        color: kColorPrimary, // Set icon color from constants
+      ),
     );
   }
 }
