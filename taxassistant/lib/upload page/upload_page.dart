@@ -4,6 +4,7 @@ import 'dart:typed_data'; // Required for Uint8List
 import 'package:get/get.dart'; // Import GetX
 import 'upload_controller.dart'; // Import the controller
 import 'package:taxassistant/history%20page/history_controller.dart';
+import '../constants.dart'; // Import constants
 
 class UploadPage extends StatefulWidget {
   const UploadPage({Key? key}) : super(key: key);
@@ -19,7 +20,17 @@ class _UploadPageState extends State<UploadPage> {
     final historyController = Get.put(HistoryController());
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Upload Document')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: const Text(
+          'Upload Document',
+          style: TextStyle(
+            color: kColorPrimary,
+            fontFamily: 'Poppins',
+          ), // Set title color to white
+        ),
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

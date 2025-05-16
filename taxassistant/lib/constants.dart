@@ -7,4 +7,6 @@ const Color kColorPrimary = Color(
 const Color kColorAccent = Color(
   0xFF7ED2AA,
 ); // Accent color for buttons/highlights
-const Color kColorBackground = Color(0xFFCFEBF2); // Light color for backgrounds
+const Color kColorComponent = Color(
+  0xFFCFEBF2,
+); // Light color for component borders

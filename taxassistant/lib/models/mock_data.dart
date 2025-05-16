@@ -25,6 +25,33 @@ class Expense {
   }
 }
 
+// Define a simple Income model
+class Income {
+  final String vendor;
+  final String date;
+  final double total;
+  final String fullText;
+  String category; // Make category editable
+
+  Income({
+    required this.vendor,
+    required this.date,
+    required this.total,
+    required this.fullText,
+    this.category = 'Uncategorized', // Default category
+  });
+
+  factory Income.fromJson(Map<String, dynamic> json) {
+    return Income(
+      vendor: json['vendor'],
+      date: json['date'],
+      total: json['total'].toDouble(),
+      fullText: json['fullText'],
+      category: json['category'] ?? 'Uncategorized',
+    );
+  }
+}
+
 // Mock Chatbot API Response
 const Map<String, dynamic> mockChatbotApiResponse = {
   'summary': 'Total expenses: RM 300.00. Food: RM 150.00, Travel: RM 150.00.',

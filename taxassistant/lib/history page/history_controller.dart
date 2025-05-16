@@ -109,41 +109,89 @@ class HistoryController extends GetxController {
       fullText: 'Monthly interest payment on housing loan (1st home)',
       category: 'Housing',
     ),
+    // December 2024
+    Expense(
+      vendor: 'Grocery Store',
+      date: '2024-12-05',
+      total: 250.00,
+      fullText: 'Weekly groceries',
+      category: 'Lifestyle & Daily Living',
+    ),
+    Expense(
+      vendor: 'Electricity Bill',
+      date: '2024-12-20',
+      total: 180.00,
+      fullText: 'Monthly electricity usage',
+      category: 'Housing',
+    ),
+    // November 2024
+    Expense(
+      vendor: 'Restaurant',
+      date: '2024-11-10',
+      total: 80.00,
+      fullText: 'Dinner with friends',
+      category: 'Lifestyle & Daily Living',
+    ),
+    // October 2024
+    Expense(
+      vendor: 'Online Course',
+      date: '2024-10-15',
+      total: 500.00,
+      fullText: 'Professional development course',
+      category: 'Retirement & Investment',
+    ),
   ];
 
-  final List<Expense> mockIncome = [
+  final List<Income> mockIncome = [
+    // December 2024
+    Income(
+      vendor: 'Freelance Client E',
+      date: '2024-12-18',
+      total: 700.00,
+      fullText: 'Consulting services',
+      category: 'Freelance',
+    ),
+    // November 2024
+    Income(
+      vendor: 'Employer',
+      date: '2024-11-30',
+      total: 5000.00,
+      fullText: 'Monthly Salary',
+      category: 'Salary',
+    ),
+    // October 2024
+    Income(
+      vendor: 'Freelance Client F',
+      date: '2024-10-25',
+      total: 1100.00,
+      fullText: 'Website maintenance',
+      category: 'Freelance',
+    ),
     // January 2025
-    Expense(
+    Income(
       vendor: 'Employer',
       date: '2025-01-31',
       total: 5000.00,
       fullText: 'Monthly Salary',
       category: 'Salary',
     ),
-    Expense(
+    Income(
       vendor: 'Freelance Client A',
       date: '2025-01-15',
       total: 1200.00,
       fullText: 'Mobile app development',
       category: 'Freelance',
     ),
-    Expense(
-      vendor: 'Dividend',
-      date: '2025-01-05',
-      total: 180.00,
-      fullText: 'Stock dividend payout',
-      category: 'Investment',
-    ),
 
     // February 2025
-    Expense(
+    Income(
       vendor: 'Employer',
       date: '2025-02-28',
       total: 5000.00,
       fullText: 'Monthly Salary',
       category: 'Salary',
     ),
-    Expense(
+    Income(
       vendor: 'Freelance Client B',
       date: '2025-02-20',
       total: 1000.00,
@@ -152,37 +200,30 @@ class HistoryController extends GetxController {
     ),
 
     // March 2025
-    Expense(
+    Income(
       vendor: 'Employer',
       date: '2025-03-31',
       total: 5000.00,
       fullText: 'Monthly Salary',
       category: 'Salary',
     ),
-    Expense(
+    Income(
       vendor: 'Freelance Client A',
       date: '2025-03-18',
       total: 1600.00,
       fullText: 'Backend integration task',
       category: 'Freelance',
     ),
-    Expense(
-      vendor: 'Dividend',
-      date: '2025-03-10',
-      total: 220.00,
-      fullText: 'Stock dividend payout',
-      category: 'Investment',
-    ),
 
     // April 2025
-    Expense(
+    Income(
       vendor: 'Employer',
       date: '2025-04-30',
       total: 5000.00,
       fullText: 'Monthly Salary',
       category: 'Salary',
     ),
-    Expense(
+    Income(
       vendor: 'Freelance Client C',
       date: '2025-04-12',
       total: 900.00,
@@ -191,26 +232,19 @@ class HistoryController extends GetxController {
     ),
 
     // May 2025
-    Expense(
+    Income(
       vendor: 'Employer',
       date: '2025-05-15',
       total: 5000.00,
       fullText: 'Monthly Salary',
       category: 'Salary',
     ),
-    Expense(
+    Income(
       vendor: 'Freelance Client D',
       date: '2025-05-10',
       total: 1500.00,
       fullText: 'Freelance project payment',
       category: 'Freelance',
-    ),
-    Expense(
-      vendor: 'Dividend',
-      date: '2025-05-05',
-      total: 200.00,
-      fullText: 'Stock dividend payout',
-      category: 'Investment',
     ),
   ];
 }

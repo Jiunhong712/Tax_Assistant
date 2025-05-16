@@ -5,6 +5,7 @@ import 'dart:convert';
 import '../models/mock_data.dart'; // mockIncome will be moved here
 import 'package:intl/intl.dart'; // Import for date formatting
 import 'package:taxassistant/history%20page/history_controller.dart';
+import '../constants.dart'; // Import constants
 
 enum HistoryView { Income, Expenses }
 
@@ -17,8 +18,8 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPageState extends State<HistoryPage> {
   final historyController = Get.find<HistoryController>();
-  List<Expense> _allHistory = [];
-  List<Expense> _incomeHistory = [];
+  List<dynamic> _allHistory = [];
+  List<Income> _incomeHistory = [];
   List<Expense> _expenseHistory = [];
   bool _isLoading = false;
   HistoryView _selectedView =
@@ -86,15 +87,15 @@ class _HistoryPageState extends State<HistoryPage> {
     _availableExpenseMonths = ['All', ...uniqueMonths];
   }
 
-  List<Expense> _getFilteredIncome() {
-    List<Expense> filteredIncome = _incomeHistory;
+  List<Income> _getFilteredIncome() {
+    List<Income> filteredIncome = _incomeHistory;
 
     if (_selectedIncomeMonth != 'All') {
       filteredIncome =
-          filteredIncome.where((expense) {
+          filteredIncome.where((income) {
             final month = DateFormat(
               'yyyy-MM',
-            ).format(DateTime.parse(expense.date));
+            ).format(DateTime.parse(income.date));
             return month == _selectedIncomeMonth;
           }).toList();
     }
@@ -128,7 +129,14 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('History')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: const Text(
+          'History',
+          style: TextStyle(color: kColorPrimary, fontFamily: 'Poppins'),
+        ),
+      ),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
