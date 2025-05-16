@@ -1,14 +1,11 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'dart:typed_data'; // Required for Uint8List
-import 'package:get/get.dart'; // Import GetX
-import '../models/mock_data.dart';
-import '../history page/history_controller.dart'; // Import history_controller.dart
-import 'package:fl_chart/fl_chart.dart'; // Import fl_chart
-import 'package:pdf/widgets.dart' as pw;
-import 'package:universal_html/html.dart' as html; // For web download
-
-enum DashboardView { Income, Expenses } // Define enum for dashboard views
+import 'package:get/get.dart';
+import '../history page/history_controller.dart';
+import '../models/mock_data.dart'; // Import Expense and Income models
+import '../upload page/upload_page.dart'; // Import UploadPage
+import '../profile_page.dart'; // Import ProfilePage
+import '../constants.dart'; // Import constants
+import 'package:intl/intl.dart'; // Import for date formatting
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -18,65 +15,336 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  DashboardView _selectedView =
-      DashboardView
-          .Expenses; // State variable for selected view, default to Expenses
+  final HistoryController historyController = Get.find<HistoryController>();
+  bool _showIncome = true; // State to toggle between Income and Expenses
+  DateTime? _selectedIncomeMonth =
+      DateTime.now(); // State for selected month for income
+  String _selectedExpenseCategory =
+      'All'; // State for selected expense category
+  DateTime? _selectedExpenseMonth; // State for selected month for expenses
+
+  final List<String> _availableExpenseCategories = [
+    'All',
+    'Lifestyle & Daily Living',
+    'Childcare & Parenting',
+    'Medical & Health',
+    'Retirement & Investment',
+    'Housing',
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final historyController =
-        Get.find<HistoryController>(); // Get instance of ExpenseController
+    // Calculate summary values
+    final double totalExpenses = historyController.mockExpenses.fold(
+      0.0,
+      (sum, expense) => sum + expense.total,
+    );
+    final double totalIncome = historyController.mockIncome.fold(
+      0.0,
+      (sum, income) => sum + income.total,
+    );
+
+    // Filter transactions based on selected view and filters
+    final filteredTransactions =
+        _showIncome
+            ? historyController.mockIncome.where((dynamic transaction) {
+              if (_selectedIncomeMonth == null) {
+                return true; // No filter applied
+              }
+              final incomeDate = DateTime.parse((transaction as Income).date);
+              return incomeDate.year == _selectedIncomeMonth!.year &&
+                  incomeDate.month == _selectedIncomeMonth!.month;
+            }).toList()
+            : historyController.mockExpenses.where((dynamic transaction) {
+              if (_selectedExpenseCategory != 'All' &&
+                  (transaction as Expense).category !=
+                      _selectedExpenseCategory) {
+                return false; // Category filter
+              }
+              if (_selectedExpenseMonth == null) {
+                return true; // No month filter applied
+              }
+              final expenseDate = DateTime.parse((transaction as Expense).date);
+              return expenseDate.year == _selectedExpenseMonth!.year &&
+                  expenseDate.month == _selectedExpenseMonth!.month;
+            }).toList();
+
+    // Group filtered transactions by date
+    final Map<String, List<dynamic>> groupedTransactions =
+        {}; // Use dynamic to handle both Income and Expense
+    filteredTransactions.sort(
+      (a, b) => DateTime.parse(
+        (b as dynamic).date,
+      ).compareTo(DateTime.parse((a as dynamic).date)),
+    ); // Sort by date descending
+
+    for (var transaction in filteredTransactions) {
+      if (groupedTransactions.containsKey((transaction as dynamic).date)) {
+        groupedTransactions[(transaction as dynamic).date]!.add(transaction);
+      } else {
+        groupedTransactions[(transaction as dynamic).date] = [transaction];
+      }
+    }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Dashboard')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text(
+          'Dashboard',
+          style: TextStyle(
+            color: kColorPrimary,
+            fontFamily: 'Poppins',
+          ), // Set title color to white
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.account_circle,
+              color: kColorPrimary,
+            ), // Profile icon
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
+              );
+            },
+          ),
+        ],
+      ),
+      body: Align(
+        alignment: Alignment.bottomCenter,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                if (_selectedView == DashboardView.Income) {
-                  generateReport(HistoryController().mockIncome);
-                } else {
-                  generateReport(historyController.mockExpenses);
-                }
-              },
-              child: Text(
-                _selectedView == DashboardView.Income
-                    ? 'Export Income Report'
-                    : 'Export Expense Report',
+          children: [
+            // Summary Section (Expenses, Balance, Income)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildSummaryItem(
+                    'Expenses',
+                    '-RM ${totalExpenses.toStringAsFixed(2)}',
+                    Colors.red, // Use red color for expenses
+                    () {
+                      setState(() {
+                        _showIncome = false;
+                        _selectedIncomeMonth = null; // Reset income filter
+                      });
+                    },
+                    !_showIncome, // isSelected
+                  ),
+                  _buildSummaryItem(
+                    'Income',
+                    'RM ${totalIncome.toStringAsFixed(2)}',
+                    Colors.green, // Use green color for income
+                    () {
+                      setState(() {
+                        _showIncome = true;
+                        _selectedExpenseCategory =
+                            'All'; // Reset expense filters
+                        _selectedExpenseMonth = null;
+                      });
+                    },
+                    _showIncome, // isSelected
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
-            // Segmented Button
-            SegmentedButton<DashboardView>(
-              segments: const <ButtonSegment<DashboardView>>[
-                ButtonSegment<DashboardView>(
-                  value: DashboardView.Income,
-                  label: Text('Income'),
-                ),
-                ButtonSegment<DashboardView>(
-                  value: DashboardView.Expenses,
-                  label: Text('Expenses'),
-                ),
-              ],
-              selected: <DashboardView>{_selectedView},
-              onSelectionChanged: (Set<DashboardView> newSelection) {
-                setState(() {
-                  _selectedView = newSelection.first;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-            // Conditionally display content based on selected view
-            Expanded(
+            const Divider(),
+            // Filtering Options
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
               child:
-                  _selectedView == DashboardView.Income
-                      ? _buildIncomeView() // Build Income view
-                      : _buildExpenseView(
-                        historyController,
-                      ), // Build Expense view
+                  _showIncome ? _buildIncomeFilter() : _buildExpenseFilters(),
+            ),
+            const Divider(),
+            // Transactions List
+            Expanded(
+              child: ListView.builder(
+                itemCount: groupedTransactions.keys.length,
+                itemBuilder: (context, index) {
+                  final date = groupedTransactions.keys.elementAt(index);
+                  final transactions = groupedTransactions[date]!;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 8.0,
+                        ),
+                        child: Text(
+                          _formatDateHeader(date),
+                          style: TextStyle(
+                            color: kColorPrimary, // Apply primary color
+                            fontFamily: 'Poppins', // Apply Poppins font
+                            fontSize:
+                                Theme.of(
+                                  context,
+                                ).textTheme.titleMedium!.fontSize,
+                            fontWeight:
+                                Theme.of(
+                                  context,
+                                ).textTheme.titleMedium!.fontWeight,
+                          ),
+                        ),
+                      ),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: transactions.length,
+                        itemBuilder: (context, transactionIndex) {
+                          final transaction = transactions[transactionIndex];
+                          // Safely access properties based on type
+                          String vendor = '';
+                          String category = '';
+                          double total = 0.0;
+                          bool isExpense = false;
+
+                          if (transaction is Expense) {
+                            vendor = transaction.vendor;
+                            category = transaction.category;
+                            total = transaction.total;
+                            isExpense = true;
+                          } else if (transaction is Income) {
+                            vendor = transaction.vendor;
+                            category = transaction.category;
+                            total = transaction.total;
+                            isExpense = false;
+                          }
+
+                          return Container(
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 4.0,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: kColorComponent,
+                              ), // Apply border color
+                              borderRadius: BorderRadius.circular(
+                                8.0,
+                              ), // Apply border radius
+                            ),
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                child: Icon(
+                                  Icons
+                                      .shopping_bag_outlined, // Placeholder icon
+                                  color: kColorPrimary, // Apply primary color
+                                ),
+                              ),
+                              title: Text(
+                                vendor,
+                                style: TextStyle(
+                                  color: kColorPrimary, // Apply primary color
+                                  fontFamily: 'Poppins', // Apply Poppins font
+                                ),
+                              ),
+                              subtitle: Text(
+                                category,
+                                style: TextStyle(
+                                  color: kColorPrimary, // Apply primary color
+                                  fontFamily: 'Poppins', // Apply Poppins font
+                                ),
+                              ),
+                              trailing: Text(
+                                '${isExpense ? '-' : '+'}RM ${total.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  color:
+                                      isExpense
+                                          ? Colors.red
+                                          : Colors
+                                              .green, // Apply red for expenses, green for income
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Poppins', // Apply Poppins font
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: Align(
+        alignment: Alignment.bottomCenter,
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            // Navigate to UploadPage
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const UploadPage()),
+            );
+          },
+          label: const Text(
+            'Add new',
+            style: TextStyle(fontFamily: 'Poppins'),
+          ), // Apply Poppins font
+          icon: const Icon(Icons.add),
+          backgroundColor: kColorAccent, // Apply accent color
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryItem(
+    String title,
+    String value,
+    Color color,
+    VoidCallback onTap,
+    bool isSelected,
+  ) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          border:
+              isSelected
+                  ? Border.all(
+                    color: kColorComponent,
+                    width: 5.0,
+                  ) // Increased border width
+                  : null, // Add border if selected
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: Column(
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                color:
+                    title == 'Expenses'
+                        ? Colors.red
+                        : Colors
+                            .green, // Apply red for expenses, green for income
+                fontFamily: 'Poppins', // Apply Poppins font
+                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                fontWeight: Theme.of(context).textTheme.titleSmall!.fontWeight,
+              ),
+            ),
+            const SizedBox(height: 4.0),
+            Text(
+              value,
+              style: TextStyle(
+                color:
+                    color, // Use the passed color (red for expenses, green for income)
+                fontFamily: 'Poppins', // Apply Poppins font
+                fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                fontWeight: Theme.of(context).textTheme.titleMedium!.fontWeight,
+              ),
             ),
           ],
         ),
@@ -84,223 +352,332 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildIncomeView() {
-    final monthlyIncome = _calculateMonthlyIncome(
-      HistoryController().mockIncome,
-    );
-
-    if (monthlyIncome.isEmpty) {
-      return const Center(child: Text('No income data available.'));
-    }
-
-    // Prepare data for the chart
-    final List<BarChartGroupData> barGroups =
-        monthlyIncome.entries.map((entry) {
-          // Assuming entry.key is a month index (0 for Jan, 1 for Feb, etc.)
-          return BarChartGroupData(
-            x: entry.key,
-            barRods: [
-              BarChartRodData(toY: entry.value, color: Colors.blue, width: 16),
-            ],
-            showingTooltipIndicators: [0],
-          );
-        }).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+  Widget _buildIncomeFilter() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          'Monthly Income:',
-          style: Theme.of(context).textTheme.headlineSmall,
+        IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: kColorPrimary, size: 20.0),
+          onPressed: () {
+            setState(() {
+              _selectedIncomeMonth =
+                  _selectedIncomeMonth == null
+                      ? DateTime.now().subtract(
+                        const Duration(days: 30),
+                      ) // Approximate a month
+                      : DateTime(
+                        _selectedIncomeMonth!.year,
+                        _selectedIncomeMonth!.month - 1,
+                      );
+            });
+          },
         ),
-        const SizedBox(height: 50),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: BarChart(
-              BarChartData(
-                gridData: const FlGridData(show: false),
-                titlesData: FlTitlesData(
-                  leftTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: true, reservedSize: 40),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 30,
-                      getTitlesWidget: (value, meta) {
-                        const months = [
-                          'Jan',
-                          'Feb',
-                          'Mar',
-                          'Apr',
-                          'May',
-                          'Jun',
-                          'Jul',
-                          'Aug',
-                          'Sep',
-                          'Oct',
-                          'Nov',
-                          'Dec',
-                        ];
-                        return SideTitleWidget(
-                          axisSide: meta.axisSide,
-                          space: 8.0,
-                          child: Text(months[value.toInt() % 12]),
-                        );
-                      },
-                    ),
-                  ),
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                ),
-                borderData: FlBorderData(
-                  show: true,
-                  border: Border.all(color: const Color(0xff37434d), width: 1),
-                ),
-                barGroups: barGroups,
-                alignment: BarChartAlignment.spaceAround,
-                maxY:
-                    monthlyIncome.values.reduce((a, b) => a > b ? a : b) *
-                    1.1, // Add some padding to the top
-              ),
+        InkWell(
+          onTap: _selectIncomeMonth,
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12.0,
+              vertical: 8.0,
+            ),
+            decoration: BoxDecoration(
+              border: Border.all(color: kColorComponent), // Add border
+              borderRadius: BorderRadius.circular(8.0), // Add border radius
+            ),
+            child: Text(
+              _selectedIncomeMonth == null
+                  ? DateFormat('MMMM yyyy').format(
+                    DateTime.now(),
+                  ) // Default to current month/year
+                  : DateFormat('MMMM yyyy').format(_selectedIncomeMonth!),
+              style: TextStyle(fontFamily: 'Poppins', color: kColorPrimary),
             ),
           ),
+        ),
+        IconButton(
+          icon: Icon(Icons.arrow_forward_ios, color: kColorPrimary, size: 20.0),
+          onPressed: () {
+            setState(() {
+              _selectedIncomeMonth =
+                  _selectedIncomeMonth == null
+                      ? DateTime.now().add(
+                        const Duration(days: 30),
+                      ) // Approximate a month
+                      : DateTime(
+                        _selectedIncomeMonth!.year,
+                        _selectedIncomeMonth!.month + 1,
+                      );
+            });
+          },
         ),
       ],
     );
   }
 
-  Widget _buildExpenseView(HistoryController historyController) {
-    final categoryTotals = _calculateCategoryTotals(
-      historyController.mockExpenses,
-    );
-
-    if (categoryTotals.isEmpty) {
-      return const Center(child: Text('No expenses recorded yet.'));
-    }
+  Widget _buildExpenseFilters() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Expense Summary by Category:',
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        const SizedBox(height: 10),
-        Expanded(
-          child: ListView.builder(
-            itemCount: categoryTotals.length,
-            itemBuilder: (context, index) {
-              final category = categoryTotals.keys.elementAt(index);
-              final total = categoryTotals.values.elementAt(index);
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(category, style: const TextStyle(fontSize: 16)),
-                      Text(
-                        'RM ${total.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            DropdownButton<String>(
+              value: _selectedExpenseCategory,
+              dropdownColor: Colors.white, // Set dropdown background to white
+              items:
+                  _availableExpenseCategories.map((String category) {
+                    return DropdownMenuItem<String>(
+                      value: category,
+                      child: Text(
+                        category,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          color: kColorPrimary,
                         ),
                       ),
-                    ],
-                  ),
+                    );
+                  }).toList(),
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  setState(() {
+                    _selectedExpenseCategory = newValue;
+                  });
+                }
+              },
+            ),
+            const SizedBox(width: 16.0),
+            IconButton(
+              icon: Icon(
+                Icons.arrow_back_ios,
+                color: kColorPrimary,
+                size: 20.0,
+              ),
+              onPressed: () {
+                setState(() {
+                  _selectedExpenseMonth =
+                      _selectedExpenseMonth == null
+                          ? DateTime.now().subtract(
+                            const Duration(days: 30),
+                          ) // Approximate a month
+                          : DateTime(
+                            _selectedExpenseMonth!.year,
+                            _selectedExpenseMonth!.month - 1,
+                          );
+                });
+              },
+            ),
+            InkWell(
+              onTap: _selectExpenseMonth,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 8.0,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(color: kColorComponent), // Add border
+                  borderRadius: BorderRadius.circular(8.0), // Add border radius
+                ),
+                child: Text(
+                  _selectedExpenseMonth == null
+                      ? DateFormat('MMMM yyyy').format(
+                        DateTime.now(),
+                      ) // Default to current month/year
+                      : DateFormat('MMMM yyyy').format(_selectedExpenseMonth!),
+                  style: TextStyle(fontFamily: 'Poppins', color: kColorPrimary),
+                ),
+              ),
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.arrow_forward_ios,
+                color: kColorPrimary,
+                size: 20.0,
+              ),
+              onPressed: () {
+                setState(() {
+                  _selectedExpenseMonth =
+                      _selectedExpenseMonth == null
+                          ? DateTime.now().add(
+                            const Duration(days: 30),
+                          ) // Approximate a month
+                          : DateTime(
+                            _selectedExpenseMonth!.year,
+                            _selectedExpenseMonth!.month + 1,
+                          );
+                });
+              },
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _selectIncomeMonth() async {
+    await _showMonthPicker(context, _selectedIncomeMonth, (pickedMonth) {
+      setState(() {
+        _selectedIncomeMonth = pickedMonth;
+      });
+    });
+  }
+
+  Future<void> _selectExpenseMonth() async {
+    await _showMonthPicker(context, _selectedExpenseMonth, (pickedMonth) {
+      setState(() {
+        _selectedExpenseMonth = pickedMonth;
+      });
+    });
+  }
+
+  Future<void> _showMonthPicker(
+    BuildContext context,
+    DateTime? initialDate,
+    Function(DateTime?) onMonthSelected,
+  ) async {
+    DateTime selectedDate = initialDate ?? DateTime.now();
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        DateTime selectedDate = initialDate ?? DateTime.now();
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return SizedBox(
+                width: 300.0, // Adjust width as needed
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Year Navigation
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            Icons.arrow_back_ios,
+                            color: kColorPrimary,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              selectedDate = DateTime(
+                                selectedDate.year - 1,
+                                selectedDate.month,
+                              );
+                            });
+                          },
+                        ),
+                        Text(
+                          DateFormat('yyyy').format(selectedDate),
+                          style: TextStyle(
+                            color: kColorPrimary,
+                            fontFamily: 'Poppins',
+                            fontSize:
+                                Theme.of(
+                                  context,
+                                ).textTheme.titleMedium!.fontSize,
+                            fontWeight:
+                                Theme.of(
+                                  context,
+                                ).textTheme.titleMedium!.fontWeight,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.arrow_forward_ios,
+                            color: kColorPrimary,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              selectedDate = DateTime(
+                                selectedDate.year + 1,
+                                selectedDate.month,
+                              );
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16.0),
+                    // Month Grid
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 8.0,
+                            mainAxisSpacing: 8.0,
+                          ),
+                      itemCount: 12,
+                      itemBuilder: (context, index) {
+                        final month = index + 1;
+                        final monthDate = DateTime(selectedDate.year, month);
+                        final isSelected =
+                            selectedDate.month == month &&
+                            selectedDate.year == monthDate.year;
+                        return ElevatedButton(
+                          onPressed: () {
+                            onMonthSelected(monthDate);
+                            Navigator.of(context).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                isSelected ? kColorAccent : Colors.grey[300],
+                          ),
+                          child: Text(
+                            DateFormat('MMM').format(monthDate),
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : kColorPrimary,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               );
             },
           ),
-        ),
-      ],
-    );
-  }
-
-  Map<String, double> _calculateCategoryTotals(List<Expense> expenses) {
-    final Map<String, double> categoryTotals = {};
-    for (var expense in expenses) {
-      categoryTotals.update(
-        expense.category,
-        (value) => value + expense.total,
-        ifAbsent: () => expense.total,
-      );
-    }
-    return categoryTotals;
-  }
-
-  Map<int, double> _calculateMonthlyIncome(List<Expense> income) {
-    final Map<int, double> monthlyTotals = {};
-    for (var entry in income) {
-      try {
-        final date = DateTime.parse(entry.date);
-        final month = date.month - 1; // 0 for January, 11 for December
-        monthlyTotals.update(
-          month,
-          (value) => value + entry.total,
-          ifAbsent: () => entry.total,
         );
-      } catch (e) {
-        // Handle potential date parsing errors
-        print('Error parsing date: ${entry.date}');
-      }
-    }
-    return monthlyTotals;
+      },
+    );
   }
 
-  Future<void> generateReport(List<Expense> expenses) async {
-    if (expenses.isEmpty) {
-      // This part needs context from the UI to show a SnackBar
-      // For now, I'll just print a message.
-      print('No expenses to generate a report.');
-      return;
+  String _formatDateHeader(String date) {
+    final today = DateTime.now();
+    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    final transactionDate = DateTime.parse(date);
+
+    if (transactionDate.year == today.year &&
+        transactionDate.month == today.month &&
+        transactionDate.day == today.day) {
+      return 'TODAY';
+    } else if (transactionDate.year == yesterday.year &&
+        transactionDate.month == yesterday.month &&
+        transactionDate.day == yesterday.day) {
+      return 'YESTERDAY';
+    } else {
+      // Format as "Month Day, Year"
+      return '${_getMonthName(transactionDate.month)} ${transactionDate.day}, ${transactionDate.year}';
     }
+  }
 
-    final pdf = pw.Document();
-
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Text(
-                'Expense Report',
-                style: pw.TextStyle(
-                  fontSize: 24,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.SizedBox(height: 20),
-              pw.Text('Processed Expenses:'),
-              pw.SizedBox(height: 10),
-              for (var expense in expenses)
-                pw.Text(
-                  '- ${expense.date}: ${expense.vendor} - ${expense.total.toStringAsFixed(2)} (${expense.category})',
-                ),
-              // Add more details like summaries and deductions here
-            ],
-          );
-        },
-      ),
-    );
-
-    // Save the PDF
-    final bytes = await pdf.save();
-
-    // For web, trigger download
-    final blob = html.Blob([bytes], 'application/pdf');
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    final anchor =
-        html.AnchorElement(href: url)
-          ..setAttribute('download', 'expense_report.pdf')
-          ..click();
-    html.Url.revokeObjectUrl(url);
+  String _getMonthName(int month) {
+    const monthNames = [
+      '',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    return monthNames[month];
   }
 }
