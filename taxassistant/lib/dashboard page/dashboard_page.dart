@@ -297,16 +297,33 @@ Return the final response in JSON format only. Do not include explanations, exam
                           return Card(
                             margin: const EdgeInsets.symmetric(vertical: 8.0),
                             child: ExpansionTile(
-                              title: Text(
-                                '$category (RM ${totalCategoryExpense.toStringAsFixed(2)})' +
-                                    (potentialRelief != null
-                                        ? ' - Maximum Relief: RM ${potentialRelief.toStringAsFixed(2)}'
-                                        : ''),
-                                style: TextStyle(
-                                  color: kColorPrimary,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '$category (RM ${totalCategoryExpense.toStringAsFixed(2)})',
+                                    style: TextStyle(
+                                      color: kColorPrimary,
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  if (potentialRelief != null)
+                                    Text(
+                                      'Maximum Relief: RM ${potentialRelief.toStringAsFixed(2)}',
+                                      style: TextStyle(
+                                        color:
+                                            (potentialRelief != null &&
+                                                    potentialRelief <
+                                                        totalCategoryExpense)
+                                                ? Colors.green
+                                                : Colors
+                                                    .red, // Set text color based on condition
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                ],
                               ),
                               children: [
                                 // Display AI suggestion if available
