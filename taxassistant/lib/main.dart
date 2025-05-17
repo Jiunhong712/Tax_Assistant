@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:taxassistant/upload%20page/upload_page.dart';
-import 'package:taxassistant/history%20page/history_page.dart';
 import 'package:taxassistant/dashboard%20page/dashboard_page.dart';
+import 'package:taxassistant/history%20page/history_page.dart';
 import 'package:taxassistant/components/chatbot_button.dart';
 import 'package:taxassistant/history%20page/history_controller.dart';
 import 'package:taxassistant/onboarding%20page/login_page/login_page.dart';
@@ -41,7 +41,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [UploadPage(), DashboardPage(), HistoryPage()];
+  final List<Widget> _pages = [UploadPage(), HistoryPage(), DashboardPage()];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -59,11 +59,11 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.upload_file),
             label: 'Upload',
           ),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
             label: 'Dashboard',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
         ],
         currentIndex: _selectedIndex,
         backgroundColor: Colors.white, // Set background color to white
