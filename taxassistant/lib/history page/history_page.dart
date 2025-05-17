@@ -253,16 +253,6 @@ class _HistoryPageState extends State<HistoryPage> {
                   _showIncome ? _buildIncomeFilter() : _buildExpenseFilters(),
             ),
             const Divider(),
-            // Filtering Options
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child:
-                  _showIncome ? _buildIncomeFilter() : _buildExpenseFilters(),
-            ),
-            const Divider(),
             // Download Button
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
