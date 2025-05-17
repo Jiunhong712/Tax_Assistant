@@ -41,6 +41,7 @@ dependencies:
   get: ^4.6.6
   intl: ^0.20.2
   fl_chart: ^0.68.0 # Add this line for charting
+  url_launcher: ^6.2.2 # Add this line for launching URLs
 
 dev_dependencies:
   flutter_test:

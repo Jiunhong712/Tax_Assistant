@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taxassistant/main.dart';
+import 'package:taxassistant/upload page/upload_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -9,7 +11,7 @@ class OnboardingPage extends StatefulWidget {
 }
 
 class _OnboardingPageState extends State<OnboardingPage> {
-  bool _hasTIN = false;
+  bool _hasTIN = true;
   bool _showTINQuestion = true;
   bool _showFreelancerQuestion = false;
   bool _isFreelancer = false;
@@ -19,10 +21,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void _onTINAnswer(bool hasTIN) {
     setState(() {
       _hasTIN = hasTIN;
+      _showTINQuestion = !hasTIN; // Hide TIN question after answer
       _showFreelancerQuestion =
           hasTIN; // Show freelancer question only if user has TIN
       _showProceedButton =
-          !hasTIN; // Show proceed button if user doesn't have TIN
+          false; // Show proceed button if user has TIN, hide if not
     });
   }
 
@@ -93,7 +96,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
                   const SizedBox(height: 20),
                   Visibility(
-                    visible: !_hasTIN && !_showTINQuestion,
+                    visible:
+                        !_hasTIN, // Show this section if user doesn't have TIN
                     child: Padding(
                       padding: const EdgeInsets.only(top: 16.0),
                       child: Column(
@@ -104,8 +108,19 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             style: TextStyle(fontSize: 16),
                           ),
                           TextButton(
-                            onPressed: () {
-                              // TODO: Implement TIN registration link action
+                            onPressed: () async {
+                              const url =
+                                  'https://mytax.hasil.gov.my/'; // Placeholder URL
+                              if (await canLaunchUrl(Uri.parse(url))) {
+                                await launchUrl(Uri.parse(url));
+                              } else {
+                                // Handle error, e.g., show a snackbar
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Could not launch $url'),
+                                  ),
+                                );
+                              }
                             },
                             child: const Text('Register for TIN'),
                           ),
