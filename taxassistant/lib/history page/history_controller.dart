@@ -39,13 +39,6 @@ class HistoryController extends GetxController {
       fullText: 'Monthly childcare fee',
       category: 'Childcare & Parenting',
     ),
-    Expense(
-      vendor: 'Big Pharmacy',
-      date: '2025-01-15',
-      total: 50.00,
-      fullText: 'COVID test kits',
-      category: 'Medical & Health',
-    ),
   ];
 
   // Getter to get unique categories from mock data

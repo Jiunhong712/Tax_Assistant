@@ -120,6 +120,7 @@ def chatbot():
             prompt=full_prompt
         )
         api_response_text = response.output.text
+        print(api_response_text)
         return jsonify({'response': api_response_text})
     except Exception as e:
         return jsonify({'error': str(e)}), 500

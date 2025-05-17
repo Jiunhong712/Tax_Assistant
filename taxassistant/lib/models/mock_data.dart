@@ -23,6 +23,16 @@ class Expense {
       category: json['category'] ?? 'Uncategorized',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'vendor': vendor,
+      'date': date,
+      'total': total,
+      'fullText': fullText,
+      'category': category,
+    };
+  }
 }
 
 // Define a simple Income model
