@@ -41,7 +41,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [DashboardPage(), HistoryPage(), UploadPage()];
+  final List<Widget> _pages = [UploadPage(), DashboardPage(), HistoryPage()];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -56,12 +56,12 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.upload_file),
             label: 'Upload',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: 'Dashboard',
           ),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
         ],
