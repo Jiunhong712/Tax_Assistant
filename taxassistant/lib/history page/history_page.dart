@@ -125,13 +125,6 @@ class _HistoryPageState extends State<HistoryPage> {
               );
             },
           ),
-          IconButton(
-            icon: Icon(
-              Icons.file_download, // Corrected icon name
-              color: kColorPrimary,
-            ), // Export icon
-            onPressed: () => downloadFile(context),
-          ),
         ],
       ),
       body: Align(
@@ -260,6 +253,45 @@ class _HistoryPageState extends State<HistoryPage> {
                   _showIncome ? _buildIncomeFilter() : _buildExpenseFilters(),
             ),
             const Divider(),
+            // Filtering Options
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
+              child:
+                  _showIncome ? _buildIncomeFilter() : _buildExpenseFilters(),
+            ),
+            const Divider(),
+            // Download Button
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: kColorComponent),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: ElevatedButton.icon(
+                    onPressed: () => downloadFile(context),
+                    icon: Icon(Icons.file_download, color: kColorPrimary),
+                    label: Text(
+                      'Download Images',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: kColorPrimary,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Colors.white, // Set button background to white
+                      elevation: 0, // Remove elevation
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+              ],
+            ),
             // Transactions List
             Expanded(
               child: ListView.builder(
