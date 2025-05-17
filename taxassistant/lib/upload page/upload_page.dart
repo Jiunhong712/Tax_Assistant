@@ -40,6 +40,7 @@ class _UploadPageState extends State<UploadPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        automaticallyImplyLeading: false, // Remove the back button
         title: const Text(
           'Upload Document',
           style: TextStyle(
