@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../constants.dart';
 import '../login_page/login_page.dart';
+import '../onboarding_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -43,38 +44,6 @@ class _RegisterPageState extends State<RegisterPage> {
               TextFormField(
                 decoration: InputDecoration(
                   hintText: 'Full Name',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 15.0,
-                    horizontal: 20.0,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20.0),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Tax Identification Number (TIN)',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 15.0,
-                    horizontal: 20.0,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20.0),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Passport No.',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
                     borderSide: BorderSide.none,
@@ -166,7 +135,12 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 30.0),
               ElevatedButton(
                 onPressed: () {
-                  // TODO: Implement registration logic
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const OnboardingPage(),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: kColorPrimary,
