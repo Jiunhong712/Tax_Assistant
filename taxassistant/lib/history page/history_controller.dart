@@ -142,6 +142,16 @@ class HistoryController extends GetxController {
     ),
   ];
 
+  // Getter to get unique categories from mock data
+  List<String> get uniqueCategories {
+    final expenseCategories =
+        mockExpenses.map((expense) => expense.category).toList();
+    final incomeCategories =
+        mockIncome.map((income) => income.category).toList();
+    final allCategories = [...expenseCategories, ...incomeCategories];
+    return allCategories.toSet().toList();
+  }
+
   final List<Income> mockIncome = [
     // December 2024
     Income(

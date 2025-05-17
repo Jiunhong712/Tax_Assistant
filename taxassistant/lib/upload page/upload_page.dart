@@ -5,6 +5,7 @@ import 'package:get/get.dart'; // Import GetX
 import 'upload_controller.dart'; // Import the controller
 import 'package:taxassistant/history%20page/history_controller.dart';
 import '../constants.dart'; // Import constants
+import '../edit_page/edit_page.dart'; // Import the EditPage
 
 class UploadPage extends StatefulWidget {
   const UploadPage({Key? key}) : super(key: key);
@@ -298,12 +299,19 @@ class _UploadPageState extends State<UploadPage> {
                                             ),
                                             IconButton(
                                               icon: const Icon(Icons.edit),
-                                              onPressed:
-                                                  () => uploadController
-                                                      .editCategory(
-                                                        uploadController
-                                                            .processedExpense!,
-                                                      ),
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder:
+                                                        (context) => EditPage(
+                                                          expense:
+                                                              uploadController
+                                                                  .processedExpense!,
+                                                        ),
+                                                  ),
+                                                );
+                                              },
                                             ),
                                           ],
                                         ),
