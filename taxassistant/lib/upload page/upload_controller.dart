@@ -58,11 +58,6 @@ class UploadController extends GetxController {
             '\n🕒 Year-end tip: Contribute to PRS or SSPN now to maximize RM8,000 relief.';
       }
 
-      if (currentMonth == 5) {
-        message +=
-            '\n💡 Mid-year check: Are you claiming your lifestyle, insurance, or medical tax reliefs?';
-      }
-
       if (currentMonth == 12) {
         message +=
             '\n🚨 Final month to submit claims and maximize tax relief. Don’t miss EV charger, insurance, or SSPN deductions!';
@@ -145,6 +140,13 @@ class UploadController extends GetxController {
     // Placeholder for category editing functionality
     print('Editing category for ${expense.vendor}');
     // In a real app, this would show a dialog or navigate to a new page
+  }
+
+  void resetUploadPage() {
+    _pickedFile.value = null;
+    _isLoading.value = false;
+    _processedExpense.value = null;
+    isDocumentProcessed.value = false;
   }
 
   // Function to calculate monthly summary (simple example)

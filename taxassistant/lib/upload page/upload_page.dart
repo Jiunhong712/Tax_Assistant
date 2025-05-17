@@ -193,8 +193,10 @@ class _UploadPageState extends State<UploadPage> {
               // Modified Upload File section
               ElevatedButton(
                 onPressed: () {
-                  uploadController
-                      .pickFile(); // Assuming pickFile method exists in controller
+                  uploadController.resetUploadPage();
+                  if (!uploadController.isDocumentProcessed.value) {
+                    uploadController.pickFile(); // Allow picking a new file
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(
