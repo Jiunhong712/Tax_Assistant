@@ -24,6 +24,8 @@ class _DashboardPageState extends State<DashboardPage> {
   String _selectedExpenseCategory =
       'All'; // State for selected expense category
   DateTime? _selectedExpenseMonth; // State for selected month for expenses
+  int _selectedYear =
+      DateTime.now().year; // State for selected year for summary
 
   final List<String> _availableExpenseCategories = [
     'All',
@@ -41,15 +43,13 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate summary values
-    final double totalExpenses = historyController.mockExpenses.fold(
-      0.0,
-      (sum, expense) => sum + expense.total,
-    );
-    final double totalIncome = historyController.mockIncome.fold(
-      0.0,
-      (sum, income) => sum + income.total,
-    );
+    // Calculate summary values for the selected year
+    final double totalExpenses = historyController.mockExpenses
+        .where((expense) => DateTime.parse(expense.date).year == _selectedYear)
+        .fold(0.0, (sum, expense) => sum + expense.total);
+    final double totalIncome = historyController.mockIncome
+        .where((income) => DateTime.parse(income.date).year == _selectedYear)
+        .fold(0.0, (sum, income) => sum + income.total);
 
     // Filter transactions based on selected view and filters
     final filteredTransactions =
@@ -124,37 +124,112 @@ class _DashboardPageState extends State<DashboardPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Summary Section (Expenses, Balance, Income)
+            // Summary Section (Expenses, Income)
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+              child: Column(
                 children: [
-                  _buildSummaryItem(
-                    'Expenses',
-                    '-RM ${totalExpenses.toStringAsFixed(2)}',
-                    Colors.red, // Use red color for expenses
-                    () {
-                      setState(() {
-                        _showIncome = false;
-                        _selectedIncomeMonth = null; // Reset income filter
-                      });
-                    },
-                    !_showIncome, // isSelected
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.arrow_back_ios,
+                          color: kColorPrimary,
+                          size: 20.0,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _selectedYear--;
+                            if (_selectedIncomeMonth != null) {
+                              _selectedIncomeMonth = DateTime(
+                                _selectedYear,
+                                _selectedIncomeMonth!.month,
+                              );
+                            }
+                            if (_selectedExpenseMonth != null) {
+                              _selectedExpenseMonth = DateTime(
+                                _selectedYear,
+                                _selectedExpenseMonth!.month,
+                              );
+                            }
+                          });
+                        },
+                      ),
+                      Text(
+                        _selectedYear.toString(),
+                        style: TextStyle(
+                          color: kColorPrimary,
+                          fontFamily: 'Poppins',
+                          fontSize:
+                              Theme.of(context).textTheme.titleLarge!.fontSize,
+                          fontWeight:
+                              Theme.of(
+                                context,
+                              ).textTheme.titleLarge!.fontWeight,
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.arrow_forward_ios,
+                          color: kColorPrimary,
+                          size: 20.0,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _selectedYear++;
+                            if (_selectedIncomeMonth != null) {
+                              _selectedIncomeMonth = DateTime(
+                                _selectedYear,
+                                _selectedIncomeMonth!.month,
+                              );
+                            }
+                            if (_selectedExpenseMonth != null) {
+                              _selectedExpenseMonth = DateTime(
+                                _selectedYear,
+                                _selectedExpenseMonth!.month,
+                              );
+                            }
+                          });
+                        },
+                      ),
+                    ],
                   ),
-                  _buildSummaryItem(
-                    'Income',
-                    'RM ${totalIncome.toStringAsFixed(2)}',
-                    Colors.green, // Use green color for income
-                    () {
-                      setState(() {
-                        _showIncome = true;
-                        _selectedExpenseCategory =
-                            'All'; // Reset expense filters
-                        _selectedExpenseMonth = null;
-                      });
-                    },
-                    _showIncome, // isSelected
+                  const SizedBox(height: 16.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildSummaryItem(
+                        'Expenses $_selectedYear',
+                        '-RM ${totalExpenses.toStringAsFixed(2)}',
+                        Colors.red, // Use red color for expenses
+                        () {
+                          setState(() {
+                            _showIncome = false;
+                            _selectedIncomeMonth = null; // Reset income filter
+                            _selectedExpenseMonth =
+                                DateTime.now(); // Set expense month to current month
+                          });
+                        },
+                        !_showIncome, // isSelected
+                      ),
+                      _buildSummaryItem(
+                        'Income $_selectedYear',
+                        'RM ${totalIncome.toStringAsFixed(2)}',
+                        Colors.green, // Use green color for income
+                        () {
+                          setState(() {
+                            _showIncome = true;
+                            _selectedExpenseCategory =
+                                'All'; // Reset expense filters
+                            _selectedExpenseMonth = null;
+                            _selectedIncomeMonth =
+                                DateTime.now(); // Set income month to current month
+                          });
+                        },
+                        _showIncome, // isSelected
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -392,10 +467,10 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             child: Text(
               _selectedIncomeMonth == null
-                  ? DateFormat('MMMM yyyy').format(
+                  ? DateFormat('MMMM').format(
                     DateTime.now(),
-                  ) // Default to current month/year
-                  : DateFormat('MMMM yyyy').format(_selectedIncomeMonth!),
+                  ) // Default to current month
+                  : DateFormat('MMMM').format(_selectedIncomeMonth!),
               style: TextStyle(fontFamily: 'Poppins', color: kColorPrimary),
             ),
           ),
@@ -484,10 +559,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 child: Text(
                   _selectedExpenseMonth == null
-                      ? DateFormat('MMMM yyyy').format(
+                      ? DateFormat('MMMM').format(
                         DateTime.now(),
-                      ) // Default to current month/year
-                      : DateFormat('MMMM yyyy').format(_selectedExpenseMonth!),
+                      ) // Default to current month
+                      : DateFormat('MMMM').format(_selectedExpenseMonth!),
                   style: TextStyle(fontFamily: 'Poppins', color: kColorPrimary),
                 ),
               ),
@@ -554,56 +629,6 @@ class _DashboardPageState extends State<DashboardPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Year Navigation
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.arrow_back_ios,
-                            color: kColorPrimary,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              selectedDate = DateTime(
-                                selectedDate.year - 1,
-                                selectedDate.month,
-                              );
-                            });
-                          },
-                        ),
-                        Text(
-                          DateFormat('yyyy').format(selectedDate),
-                          style: TextStyle(
-                            color: kColorPrimary,
-                            fontFamily: 'Poppins',
-                            fontSize:
-                                Theme.of(
-                                  context,
-                                ).textTheme.titleMedium!.fontSize,
-                            fontWeight:
-                                Theme.of(
-                                  context,
-                                ).textTheme.titleMedium!.fontWeight,
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.arrow_forward_ios,
-                            color: kColorPrimary,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              selectedDate = DateTime(
-                                selectedDate.year + 1,
-                                selectedDate.month,
-                              );
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16.0),
                     // Month Grid
                     GridView.builder(
                       shrinkWrap: true,
@@ -618,9 +643,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       itemBuilder: (context, index) {
                         final month = index + 1;
                         final monthDate = DateTime(selectedDate.year, month);
-                        final isSelected =
-                            selectedDate.month == month &&
-                            selectedDate.year == monthDate.year;
+                        final isSelected = selectedDate.month == month;
                         return ElevatedButton(
                           onPressed: () {
                             onMonthSelected(monthDate);
@@ -664,8 +687,8 @@ class _DashboardPageState extends State<DashboardPage> {
         transactionDate.day == yesterday.day) {
       return 'YESTERDAY';
     } else {
-      // Format as "Month Day, Year"
-      return '${_getMonthName(transactionDate.month)} ${transactionDate.day}, ${transactionDate.year}';
+      // Format as "Month Day"
+      return '${_getMonthName(transactionDate.month)} ${transactionDate.day}';
     }
   }
 
