@@ -4,6 +4,7 @@ import 'package:taxassistant/history%20page/history_controller.dart'; // Import 
 import 'dart:convert'; // For JSON encoding
 import 'package:http/http.dart' as http; // Import http package
 import '../constants.dart'; // Import constants
+import 'package:flutter_markdown/flutter_markdown.dart'; // Import flutter_markdown
 
 class ChatbotPage extends StatefulWidget {
   const ChatbotPage({Key? key}) : super(key: key);
@@ -200,9 +201,11 @@ class ChatMessageBubble extends StatelessWidget {
           color: isUser ? Colors.blueAccent : Colors.grey[300],
           borderRadius: BorderRadius.circular(15.0),
         ),
-        child: Text(
-          text,
-          style: TextStyle(color: isUser ? Colors.white : Colors.black87),
+        child: MarkdownBody(
+          data: text,
+          styleSheet: MarkdownStyleSheet(
+            p: TextStyle(color: isUser ? Colors.white : Colors.black87),
+          ),
         ),
       ),
     );
