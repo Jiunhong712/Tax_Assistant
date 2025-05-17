@@ -52,7 +52,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
     });
 
     // URL of the Flask backend
-    final url = Uri.parse('http://127.0.0.1:5000/chatbot');
+    final url = Uri.parse('http://127.0.0.1:5001/chatbot');
 
     try {
       final response = await http.post(
