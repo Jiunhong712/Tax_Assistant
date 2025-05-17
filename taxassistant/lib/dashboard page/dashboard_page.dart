@@ -5,8 +5,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../constants.dart';
 import '../history page/history_controller.dart';
-import '../models/mock_data.dart'; // Import Expense and Income models
-import '../profile_page.dart'; // Import ProfilePage
+import '../data.dart'; // Import Expense and Income models
+import '../profile page/profile_page.dart'; // Import ProfilePage
+import '../filling page/filling_page.dart'; // Import FillingPage
+import 'package:taxassistant/main.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -59,8 +61,8 @@ class _DashboardPageState extends State<DashboardPage> {
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'message': '''
-              Analyse my financial data for $_selectedYear and calculate the **total amount of tax relief for each category**. 
+          'message': """
+              Analyse my financial data for $_selectedYear and calculate the **total amount of tax relief for each category**.
               For each category, return:
 
 - `relief_amount`: the maximum tax relief amount for that category.
@@ -83,7 +85,7 @@ Example format:
 
 Return the final response in JSON format only. Do not include explanations, examples, or any text other than the JSON.
 
-''', // Provide a default message
+""", // Provide a default message
           'dashboardData': dashboardData, // Include dashboard data
         }),
       );
@@ -375,6 +377,88 @@ Return the final response in JSON format only. Do not include explanations, exam
                           );
                         },
                       ),
+                      const SizedBox(height: 24.0), // Add some spacing
+                      // Buttons at the bottom
+                      if (_analysisResults !=
+                          null) // Conditionally render buttons
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            OutlinedButton(
+                              onPressed: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const HomePage(),
+                                  ),
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: kColorComponent),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16.0,
+                                ),
+                              ),
+                              child: const Text(
+                                'Upload Files',
+                                style: TextStyle(
+                                  color: kColorPrimary,
+                                  fontFamily: 'Poppins',
+                                  fontSize: 18.0,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 16.0,
+                            ), // Spacing between buttons
+                            OutlinedButton(
+                              onPressed: () {
+                                // Prepare dashboard data to send
+                                final groupedExpenses =
+                                    _getExpensesByCategoryAndYear();
+                                final totalIncome = _getTotalIncomeForYear();
+
+                                // Format data for JSON
+                                final dashboardData = {
+                                  'year': _selectedYear,
+                                  'totalIncome': totalIncome,
+                                  'expensesByCategory': groupedExpenses.map(
+                                    (category, expenses) => MapEntry(
+                                      category,
+                                      expenses
+                                          .map((expense) => expense.toJson())
+                                          .toList(),
+                                    ),
+                                  ), // Assuming Expense model has toJson()
+                                };
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => FillingPage(
+                                          dashboardData: dashboardData,
+                                        ),
+                                  ),
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: kColorComponent),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16.0,
+                                ),
+                              ),
+                              child: const Text(
+                                'Proceed to Tax Relief Filing',
+                                style: TextStyle(
+                                  color: kColorPrimary,
+                                  fontFamily: 'Poppins',
+                                  fontSize: 18.0,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                     ], // Closing bracket for the Column's children
                   ),
                 ),

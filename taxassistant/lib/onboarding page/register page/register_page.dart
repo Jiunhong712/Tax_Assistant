@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../constants.dart';
-import '../login_page/login_page.dart';
-import '../onboarding_page.dart';
+import '../login page/login_page.dart';
+import 'package:taxassistant/main.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -137,9 +137,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const OnboardingPage(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const HomePage()),
                   );
                 },
                 style: ElevatedButton.styleFrom(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taxassistant/main.dart';
 import '../../constants.dart';
-import '../register_page/register_page.dart';
+import '../register page/register_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);

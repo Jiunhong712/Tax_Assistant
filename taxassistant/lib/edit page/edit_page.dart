@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/mock_data.dart'; // Import the Expense model
+import '../data.dart'; // Import the Expense model
 
 class EditPage extends StatefulWidget {
   final Expense expense; // Add a final field to accept the expense data

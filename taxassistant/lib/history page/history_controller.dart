@@ -1,4 +1,4 @@
-import '../models/mock_data.dart';
+import '../data.dart';
 import 'package:get/get.dart';
 
 class HistoryController extends GetxController {

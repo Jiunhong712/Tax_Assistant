@@ -5,7 +5,7 @@ import 'dart:typed_data'; // Required for Uint8List
 import 'package:pdf/widgets.dart' as pw;
 import 'package:universal_html/html.dart' as html; // For web download
 import 'package:get/get.dart'; // Import GetX
-import '../models/mock_data.dart';
+import '../data.dart';
 
 class UploadController extends GetxController {
   var _pickedFile = Rx<PlatformFile?>(null);
@@ -125,15 +125,7 @@ class UploadController extends GetxController {
   }
 
   void _categorizeExpense(Expense expense) {
-    final fullText = expense.fullText.toLowerCase();
-    if (fullText.contains('restaurant') || fullText.contains('cafe')) {
-      expense.category = 'Food';
-    } else if (fullText.contains('taxi') || fullText.contains('grab')) {
-      expense.category = 'Travel';
-    } else if (fullText.contains('computer') || fullText.contains('laptop')) {
-      expense.category = 'Computers';
-    }
-    // Add more rules as needed
+    expense.category = "Lifestyle & Daily Living";
   }
 
   void editCategory(Expense expense) {

@@ -73,9 +73,9 @@ const Map<String, dynamic> mockChatbotApiResponse = {
 
 // Mock OCR Data
 const Map<String, String> mockOcrData = {
-  'vendor': 'Mock Restaurant',
-  'date': '2025-05-15',
-  'total': '150.50',
+  'vendor': 'Tesla Malaysia',
+  'date': '2025-05-13',
+  'total': '2300.00',
   'fullText':
       'This is mock OCR text for a meal at Mock Restaurant. Taxi ride home.',
 };

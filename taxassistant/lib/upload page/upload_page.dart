@@ -5,9 +5,9 @@ import 'package:get/get.dart'; // Import GetX
 import 'upload_controller.dart'; // Import the controller
 import 'package:taxassistant/history%20page/history_controller.dart';
 import '../constants.dart'; // Import constants
-import '../edit_page/edit_page.dart'; // Import the EditPage
-import '../filling_page/filling_page.dart'; // Import the FillingPage
-import '../profile_page.dart'; // Import the ProfilePage
+import '../edit page/edit_page.dart'; // Import the EditPage
+import '../filling page/filling_page.dart'; // Import the FillingPage
+import '../profile page/profile_page.dart'; // Import the ProfilePage
 
 class UploadPage extends StatefulWidget {
   const UploadPage({Key? key}) : super(key: key);
@@ -17,23 +17,6 @@ class UploadPage extends StatefulWidget {
 }
 
 class _UploadPageState extends State<UploadPage> {
-  // Define a data structure for checklist items
-  List<Map<String, dynamic>> checklistItems = [
-    {'text': 'EA form', 'status': 'pending', 'isNotApplicable': false},
-    {
-      'text': 'Monthly income for freelancers',
-      'status': 'pending',
-      'isNotApplicable': false,
-    },
-    {
-      'text': 'Receipts and invoices for expenses',
-      'status': 'pending',
-      'isNotApplicable': false,
-    },
-  ];
-
-  int? _selectedItemIndex; // State variable to track the selected item index
-
   @override
   Widget build(BuildContext context) {
     final uploadController = Get.put(UploadController());
@@ -86,124 +69,6 @@ class _UploadPageState extends State<UploadPage> {
                         ),
               ),
               const SizedBox(height: 20), // Add some spacing
-              Obx(() {
-                if (uploadController.isDocumentProcessed.value) {
-                  return Container(); // Hide checklist if document is processed
-                } else {
-                  return Column(
-                    children: [
-                      const Text(
-                        'Checklist',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      // Display checklist items
-                      ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: checklistItems.length,
-                        itemBuilder: (context, index) {
-                          final item = checklistItems[index];
-                          return Container(
-                            margin: const EdgeInsets.symmetric(
-                              vertical: 4.0,
-                            ), // Add some vertical spacing between items
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: kColorPrimary,
-                              ), // Use kColorPrimary for border color
-                              borderRadius: BorderRadius.circular(
-                                8.0,
-                              ), // Add rounded corners
-                            ),
-                            child: Column(
-                              children: [
-                                ListTile(
-                                  leading:
-                                      item['status'] == 'satisfied'
-                                          ? const Icon(
-                                            Icons.check_circle,
-                                            color: Colors.green,
-                                          )
-                                          : null,
-                                  title: Text(
-                                    item['text'],
-                                    style: TextStyle(
-                                      decoration:
-                                          item['status'] == 'not applicable'
-                                              ? TextDecoration.lineThrough
-                                              : TextDecoration.none,
-                                    ),
-                                  ),
-                                  trailing: const Icon(
-                                    Icons.arrow_drop_down,
-                                  ), // Add the down arrow icon
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedItemIndex = index;
-                                    });
-                                  },
-                                ),
-                                if (_selectedItemIndex == index)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16.0,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              if (item['isNotApplicable']) {
-                                                item['isNotApplicable'] = false;
-                                                item['status'] =
-                                                    'pending'; // Reset status
-                                              } else {
-                                                item['isNotApplicable'] = true;
-                                                item['status'] =
-                                                    'not applicable'; // Set status
-                                              }
-                                              _selectedItemIndex =
-                                                  null; // Hide buttons after action
-                                            });
-                                          },
-                                          child: Text(
-                                            item['isNotApplicable']
-                                                ? 'Applicable'
-                                                : 'Not Applicable',
-                                          ),
-                                        ),
-                                        ElevatedButton(
-                                          onPressed:
-                                              item['isNotApplicable']
-                                                  ? null
-                                                  : () {
-                                                    // TODO: Implement upload document logic
-                                                    print(
-                                                      'Upload Document clicked for ${item['text']}',
-                                                    );
-                                                    setState(() {
-                                                      _selectedItemIndex =
-                                                          null; // Hide buttons after action
-                                                    });
-                                                  },
-                                          child: const Text('Upload Document'),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  );
-                }
-              }),
               const SizedBox(height: 20),
               // Modified Upload File section
               ElevatedButton(
@@ -275,7 +140,7 @@ class _UploadPageState extends State<UploadPage> {
                                 Image.memory(
                                   uploadController.pickedFile!.bytes
                                       as Uint8List,
-                                  height: 200,
+                                  height: 400,
                                   fit: BoxFit.fill,
                                 )
                               else if (uploadController.pickedFile!.path !=
