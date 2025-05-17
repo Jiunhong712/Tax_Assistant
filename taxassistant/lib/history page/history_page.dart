@@ -130,7 +130,7 @@ class _HistoryPageState extends State<HistoryPage> {
               Icons.file_download, // Corrected icon name
               color: kColorPrimary,
             ), // Export icon
-            onPressed: _exportSelectedTransactions,
+            onPressed: () => downloadFile(context),
           ),
         ],
       ),
@@ -404,150 +404,34 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
-  Future<void> _exportSelectedTransactions() async {
-    if (_selectedTransactions.isEmpty) {
-      // Show a message to the user that no transactions are selected
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No transactions selected for export.')),
+  final String apiUrl = 'http://127.0.0.1:5000/download_file';
+
+  Future<void> downloadFile(BuildContext context) async {
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'bucket_name': 'oss-pai-1izwssd7mowrp548bw-ap-southeast-1',
+          'object_key': 'upload/expenses/tesla-malaysia.png',
+          'local_path': r"C:\Users\xavie\Downloads\tesla-malaysia.png",
+        }),
       );
-      return;
-    }
 
-    if (kIsWeb) {
-      // Web-specific export logic
-      for (var transaction in _selectedTransactions) {
-        String fileName = '';
-        String content = '';
-        String transactionType = '';
-
-        if (transaction is Expense) {
-          transactionType = 'expense';
-          fileName =
-              '${transaction.vendor}_${transaction.date.replaceAll('-', '_')}.txt';
-          content = '''
-Vendor: ${transaction.vendor}
-Category: ${transaction.category}
-Total: ${transaction.total.toStringAsFixed(2)}
-Date: ${transaction.date}
-''';
-        } else if (transaction is Income) {
-          transactionType = 'income';
-          fileName =
-              '${transaction.vendor}_${transaction.date.replaceAll('-', '_')}.txt';
-          content = '''
-Vendor: ${transaction.vendor}
-Category: ${transaction.category}
-Total: ${transaction.total.toStringAsFixed(2)}
-Date: ${transaction.date}
-''';
-        }
-
-        if (transactionType.isNotEmpty) {
-          // Create a blob from the content
-          final blob = Blob([content], 'text/plain');
-          // Create a download link
-          final url = Url.createObjectUrlFromBlob(blob);
-          final anchor =
-              AnchorElement(href: url)
-                ..setAttribute('download', fileName)
-                ..click();
-          // Revoke the object URL
-          Url.revokeObjectUrl(url);
-        }
-      }
-      // Show a success message for web
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Selected transactions downloaded successfully!'),
-        ),
-      );
-    } else {
-      // Mobile/Desktop export logic
-      // Request storage permission
-      var status = await Permission.storage.request();
-      if (status.isGranted) {
-        try {
-          // Get the documents directory
-          final directory = await getApplicationDocumentsDirectory();
-          final taxlyDirectory = Directory('${directory.path}/taxly');
-          final expensesDirectory = Directory(
-            '${taxlyDirectory.path}/expenses',
-          );
-          final incomeDirectory = Directory('${taxlyDirectory.path}/income');
-
-          // Create directories if they don't exist
-          if (!await taxlyDirectory.exists()) {
-            await taxlyDirectory.create(recursive: true);
-          }
-          if (!await expensesDirectory.exists()) {
-            await expensesDirectory.create(recursive: true);
-          }
-          if (!await incomeDirectory.exists()) {
-            await incomeDirectory.create(recursive: true);
-          }
-
-          for (var transaction in _selectedTransactions) {
-            String fileName = '';
-            String content = '';
-            String monthYear = DateFormat(
-              'MMM_yyyy',
-            ).format(DateTime.parse((transaction as dynamic).date));
-            String transactionType = '';
-
-            if (transaction is Expense) {
-              transactionType = 'expenses';
-              fileName =
-                  '${transaction.vendor}_${transaction.date.replaceAll('-', '_')}.txt';
-              content = '''
-Vendor: ${transaction.vendor}
-Category: ${transaction.category}
-Total: ${transaction.total.toStringAsFixed(2)}
-Date: ${transaction.date}
-''';
-            } else if (transaction is Income) {
-              transactionType = 'income';
-              fileName =
-                  '${transaction.vendor}_${transaction.date.replaceAll('-', '_')}.txt';
-              content = '''
-Vendor: ${transaction.vendor}
-Category: ${transaction.category}
-Total: ${transaction.total.toStringAsFixed(2)}
-Date: ${transaction.date}
-''';
-            }
-
-            if (transactionType.isNotEmpty) {
-              final exportDirectory = Directory(
-                '${taxlyDirectory.path}/$transactionType/${monthYear.toLowerCase()}',
-              );
-              if (!await exportDirectory.exists()) {
-                await exportDirectory.create(recursive: true);
-              }
-              final file = File('${exportDirectory.path}/$fileName');
-              await file.writeAsString(content);
-            }
-          }
-
-          // Show a success message
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Selected transactions exported successfully!'),
-            ),
-          );
-        } catch (e) {
-          // Show an error message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error exporting transactions: $e')),
-          );
-        }
-      } else {
-        // Show a message if permission is denied
+      if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Storage permission denied. Cannot export.'),
-          ),
+          SnackBar(content: Text('File downloaded successfully!')),
         );
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to download file')));
       }
+    } catch (e) {
+      print('Download Error: $e'); // Print the error to the console
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
