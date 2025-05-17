@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'history_controller.dart';
 import '../models/mock_data.dart'; // Import Expense and Income models
-import '../upload page/upload_page.dart'; // Import UploadPage
 import '../profile_page.dart'; // Import ProfilePage
+import '../filling_page/filling_page.dart'; // Import FillingPage
 import '../constants.dart'; // Import constants
 import 'package:intl/intl.dart'; // Import for date formatting
 import 'dart:convert'; // For JSON encoding
@@ -114,8 +114,8 @@ class _HistoryPageState extends State<HistoryPage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.account_circle,
+            icon: const Icon(
+              Icons.person,
               color: kColorPrimary,
             ), // Profile icon
             onPressed: () {

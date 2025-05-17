@@ -6,6 +6,8 @@ import 'upload_controller.dart'; // Import the controller
 import 'package:taxassistant/history%20page/history_controller.dart';
 import '../constants.dart'; // Import constants
 import '../edit_page/edit_page.dart'; // Import the EditPage
+import '../filling_page/filling_page.dart'; // Import the FillingPage
+import '../profile_page.dart'; // Import the ProfilePage
 
 class UploadPage extends StatefulWidget {
   const UploadPage({Key? key}) : super(key: key);
@@ -49,6 +51,17 @@ class _UploadPageState extends State<UploadPage> {
             fontFamily: 'Poppins',
           ), // Set title color to white
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person, color: kColorPrimary),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
+              );
+            },
+          ),
+        ],
       ),
       body: Center(
         child: Padding(

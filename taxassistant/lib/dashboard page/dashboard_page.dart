@@ -6,6 +6,7 @@ import 'dart:convert';
 import '../constants.dart';
 import '../history page/history_controller.dart';
 import '../models/mock_data.dart'; // Import Expense and Income models
+import '../profile_page.dart'; // Import ProfilePage
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -166,6 +167,17 @@ Return the final response in JSON format only. Do not include explanations, exam
           'Dashboard',
           style: TextStyle(color: kColorPrimary, fontFamily: 'Poppins'),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person, color: kColorPrimary),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
+              );
+            },
+          ),
+        ],
       ),
       body:
           _isLoading
