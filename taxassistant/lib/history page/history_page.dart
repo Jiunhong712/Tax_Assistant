@@ -7,8 +7,13 @@ import '../profile_page.dart'; // Import ProfilePage
 import '../constants.dart'; // Import constants
 import 'package:intl/intl.dart'; // Import for date formatting
 import 'dart:convert'; // For JSON encoding
+import 'dart:io'; // For file operations
 import 'package:http/http.dart' as http; // Import http package
 import 'package:taxassistant/main.dart';
+import 'package:path_provider/path_provider.dart'; // For getting directory paths
+import 'package:permission_handler/permission_handler.dart'; // For permission handling
+import 'package:flutter/foundation.dart'; // For kIsWeb
+import 'dart:html' show Blob, Url, AnchorElement; // For web-specific APIs
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({Key? key}) : super(key: key);
@@ -27,6 +32,8 @@ class _HistoryPageState extends State<HistoryPage> {
   DateTime? _selectedExpenseMonth; // State for selected month for expenses
   int _selectedYear =
       DateTime.now().year; // State for selected year for summary
+  final List<dynamic> _selectedTransactions =
+      []; // State for selected transactions
 
   final List<String> _availableExpenseCategories = [
     'All',
@@ -117,6 +124,13 @@ class _HistoryPageState extends State<HistoryPage> {
                 MaterialPageRoute(builder: (context) => const ProfilePage()),
               );
             },
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.file_download, // Corrected icon name
+              color: kColorPrimary,
+            ), // Export icon
+            onPressed: _exportSelectedTransactions,
           ),
         ],
       ),
@@ -315,38 +329,46 @@ class _HistoryPageState extends State<HistoryPage> {
                                 8.0,
                               ), // Apply border radius
                             ),
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                child: Icon(
-                                  Icons
-                                      .shopping_bag_outlined, // Placeholder icon
-                                  color: kColorPrimary, // Apply primary color
-                                ),
+                            child: CheckboxListTile(
+                              value: _selectedTransactions.contains(
+                                transaction,
                               ),
-                              title: Text(
-                                vendor,
-                                style: TextStyle(
-                                  color: kColorPrimary, // Apply primary color
-                                  fontFamily: 'Poppins', // Apply Poppins font
-                                ),
+                              onChanged: (bool? selected) {
+                                setState(() {
+                                  if (selected == true) {
+                                    _selectedTransactions.add(transaction);
+                                  } else {
+                                    _selectedTransactions.remove(transaction);
+                                  }
+                                });
+                              },
+                              title: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    vendor,
+                                    style: TextStyle(
+                                      color: kColorPrimary,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                  Text(
+                                    '${isExpense ? '-' : '+'}RM ${total.toStringAsFixed(2)}',
+                                    style: TextStyle(
+                                      color:
+                                          isExpense ? Colors.red : Colors.green,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                ],
                               ),
                               subtitle: Text(
                                 category,
                                 style: TextStyle(
-                                  color: kColorPrimary, // Apply primary color
-                                  fontFamily: 'Poppins', // Apply Poppins font
-                                ),
-                              ),
-                              trailing: Text(
-                                '${isExpense ? '-' : '+'}RM ${total.toStringAsFixed(2)}',
-                                style: TextStyle(
-                                  color:
-                                      isExpense
-                                          ? Colors.red
-                                          : Colors
-                                              .green, // Apply red for expenses, green for income
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Poppins', // Apply Poppins font
+                                  color: kColorPrimary,
+                                  fontFamily: 'Poppins',
                                 ),
                               ),
                             ),
@@ -380,6 +402,153 @@ class _HistoryPageState extends State<HistoryPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _exportSelectedTransactions() async {
+    if (_selectedTransactions.isEmpty) {
+      // Show a message to the user that no transactions are selected
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No transactions selected for export.')),
+      );
+      return;
+    }
+
+    if (kIsWeb) {
+      // Web-specific export logic
+      for (var transaction in _selectedTransactions) {
+        String fileName = '';
+        String content = '';
+        String transactionType = '';
+
+        if (transaction is Expense) {
+          transactionType = 'expense';
+          fileName =
+              '${transaction.vendor}_${transaction.date.replaceAll('-', '_')}.txt';
+          content = '''
+Vendor: ${transaction.vendor}
+Category: ${transaction.category}
+Total: ${transaction.total.toStringAsFixed(2)}
+Date: ${transaction.date}
+''';
+        } else if (transaction is Income) {
+          transactionType = 'income';
+          fileName =
+              '${transaction.vendor}_${transaction.date.replaceAll('-', '_')}.txt';
+          content = '''
+Vendor: ${transaction.vendor}
+Category: ${transaction.category}
+Total: ${transaction.total.toStringAsFixed(2)}
+Date: ${transaction.date}
+''';
+        }
+
+        if (transactionType.isNotEmpty) {
+          // Create a blob from the content
+          final blob = Blob([content], 'text/plain');
+          // Create a download link
+          final url = Url.createObjectUrlFromBlob(blob);
+          final anchor =
+              AnchorElement(href: url)
+                ..setAttribute('download', fileName)
+                ..click();
+          // Revoke the object URL
+          Url.revokeObjectUrl(url);
+        }
+      }
+      // Show a success message for web
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Selected transactions downloaded successfully!'),
+        ),
+      );
+    } else {
+      // Mobile/Desktop export logic
+      // Request storage permission
+      var status = await Permission.storage.request();
+      if (status.isGranted) {
+        try {
+          // Get the documents directory
+          final directory = await getApplicationDocumentsDirectory();
+          final taxlyDirectory = Directory('${directory.path}/taxly');
+          final expensesDirectory = Directory(
+            '${taxlyDirectory.path}/expenses',
+          );
+          final incomeDirectory = Directory('${taxlyDirectory.path}/income');
+
+          // Create directories if they don't exist
+          if (!await taxlyDirectory.exists()) {
+            await taxlyDirectory.create(recursive: true);
+          }
+          if (!await expensesDirectory.exists()) {
+            await expensesDirectory.create(recursive: true);
+          }
+          if (!await incomeDirectory.exists()) {
+            await incomeDirectory.create(recursive: true);
+          }
+
+          for (var transaction in _selectedTransactions) {
+            String fileName = '';
+            String content = '';
+            String monthYear = DateFormat(
+              'MMM_yyyy',
+            ).format(DateTime.parse((transaction as dynamic).date));
+            String transactionType = '';
+
+            if (transaction is Expense) {
+              transactionType = 'expenses';
+              fileName =
+                  '${transaction.vendor}_${transaction.date.replaceAll('-', '_')}.txt';
+              content = '''
+Vendor: ${transaction.vendor}
+Category: ${transaction.category}
+Total: ${transaction.total.toStringAsFixed(2)}
+Date: ${transaction.date}
+''';
+            } else if (transaction is Income) {
+              transactionType = 'income';
+              fileName =
+                  '${transaction.vendor}_${transaction.date.replaceAll('-', '_')}.txt';
+              content = '''
+Vendor: ${transaction.vendor}
+Category: ${transaction.category}
+Total: ${transaction.total.toStringAsFixed(2)}
+Date: ${transaction.date}
+''';
+            }
+
+            if (transactionType.isNotEmpty) {
+              final exportDirectory = Directory(
+                '${taxlyDirectory.path}/$transactionType/${monthYear.toLowerCase()}',
+              );
+              if (!await exportDirectory.exists()) {
+                await exportDirectory.create(recursive: true);
+              }
+              final file = File('${exportDirectory.path}/$fileName');
+              await file.writeAsString(content);
+            }
+          }
+
+          // Show a success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Selected transactions exported successfully!'),
+            ),
+          );
+        } catch (e) {
+          // Show an error message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error exporting transactions: $e')),
+          );
+        }
+      } else {
+        // Show a message if permission is denied
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Storage permission denied. Cannot export.'),
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildSummaryItem(
