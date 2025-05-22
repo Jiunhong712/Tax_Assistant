@@ -1,4 +1,4 @@
-# Taxly – Expense Tracker & Tax Filing Assistant for Malaysian Freelancers 🇲🇾
+# Taxly – Expense Tracker & Tax Filing Assistant for Malaysian Freelancers
 
 **Taxly** is a web application designed to simplify expense tracking and tax filing for Malaysian freelancers. It uses cutting-edge **AI, OCR**, and **cloud technologies** to automate categorization, provide tax relief insights, and guide users through Malaysia’s tax filing system.
 
